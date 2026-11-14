@@ -47,7 +47,8 @@ const bootScript = `(function(d){d.classList.add('js');setTimeout(function(){if(
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ru" className={fontVariables}>
+    // suppressHydrationWarning: класс .js добавляет скрипт в <head> до гидрации — это ожидаемое расхождение.
+    <html lang="ru" className={fontVariables} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: bootScript }} />
       </head>

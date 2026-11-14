@@ -90,6 +90,8 @@ html {
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
   scroll-padding-top: var(--header-h);
+  /* Страница никогда не прокручивается вбок. */
+  overflow-x: clip;
 }
 
 /* На десктопе корневой кегль привязан к ширине окна: 1920 → 16px, 2560 → 21.3px.
