@@ -51,6 +51,13 @@ export const nav = [
   { label: 'Контакты', href: `#${sectionIds.request}` },
 ] as const
 
+/** Мобильное меню: подписи для скринридеров. */
+export const mobileMenu = {
+  title: 'Меню сайта',
+  open: 'Открыть меню',
+  close: 'Закрыть меню',
+} as const
+
 export const cta = {
   discussEvent: 'Обсудить событие',
   discussMenu: 'Обсудить меню',

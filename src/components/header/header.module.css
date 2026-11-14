@@ -41,6 +41,9 @@
 }
 
 .brand {
+  /* вордмарк остаётся виден поверх открытого мобильного меню */
+  position: relative;
+  z-index: 2;
   display: inline-flex;
   align-items: baseline;
   gap: 0.625rem;
