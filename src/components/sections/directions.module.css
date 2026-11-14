@@ -1,0 +1,182 @@
+/* 2. Два направления. */
+
+.section {
+  position: relative;
+  z-index: 1;
+  background: var(--color-milk);
+  /* Сверху отступ небольшой: воздух даёт низ первого экрана. */
+  padding-block: 1.5rem 0;
+}
+
+/* ── Мобильная композиция: две карточки друг под другом ─────────────────────── */
+
+.stage {
+  display: grid;
+  row-gap: 4.5rem;
+}
+
+.window {
+  display: block;
+  overflow: hidden;
+  /* Кадр почти во весь экран. */
+  height: min(68svh, 122vw);
+}
+
+.layer,
+.picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.img {
+  object-fit: cover;
+  transition: scale 1.1s var(--ease-out-expo);
+}
+
+.caption {
+  padding-top: 1.5rem;
+}
+
+.title {
+  font-size: clamp(2rem, 9.4vw, 2.75rem);
+}
+
+.row {
+  margin-top: 1rem;
+}
+
+.text {
+  max-width: 22rem;
+  color: var(--color-ink-2);
+}
+
+.link {
+  margin-top: 1rem;
+  /* область касания не меньше 44px */
+  padding-block: 0.75rem;
+  color: var(--color-bordo);
+}
+
+/* ── Десктоп: экран пополам ────────────────────────────────────────────────── */
+
+@media (min-width: 64rem) {
+  .section {
+    padding-block: var(--header-h) 0;
+  }
+
+  .stage {
+    /* −1 — раскрыта левая половина, 0 — поровну, 1 — раскрыта правая. Анимирует DirectionsSplit. */
+    --p: 0;
+    /* Зазор между кадрами. */
+    --gap: 1.25rem;
+    /* Высота подписи под кадром. */
+    --cap-h: 13.5rem;
+
+    position: relative;
+    display: block;
+    /* Сцена — контейнер для единиц cqw: все сдвиги считаются от её ширины. */
+    container-type: inline-size;
+    height: calc(100svh - var(--header-h));
+    min-height: 36rem;
+    overflow: hidden;
+  }
+
+  .half {
+    position: static;
+  }
+
+  /* Окно кадра. Раскладывается сразу на максимальную ширину (58%), а «лишнее» уводится
+     трансформацией за край сцены: ширина при наведении не анимируется. */
+  .window {
+    position: absolute;
+    top: 0;
+    bottom: var(--cap-h);
+    height: auto;
+    width: calc(58cqw - var(--gap) / 2);
+    will-change: transform;
+  }
+
+  .half[data-dir='events'] .window {
+    left: 0;
+    transform: translate3d(calc((var(--p) * -8 - 8) * 1cqw), 0, 0);
+  }
+
+  .half[data-dir='delivery'] .window {
+    right: 0;
+    transform: translate3d(calc((8 - var(--p) * 8) * 1cqw), 0, 0);
+  }
+
+  /* Сам кадр едет вдвое медленнее окна: кадрировка остаётся по центру, как у object-fit: cover. */
+  .layer {
+    will-change: transform;
+  }
+
+  .half[data-dir='events'] .layer {
+    transform: translate3d(calc((var(--p) * 4 + 4) * 1cqw), 0, 0);
+  }
+
+  .half[data-dir='delivery'] .layer {
+    transform: translate3d(calc((var(--p) * 4 - 4) * 1cqw), 0, 0);
+  }
+
+  /* Раскрытая половина чуть приближает кадр. */
+  .half[data-dir='events'] .img {
+    scale: calc(1 + max(0, var(--p) * -1) * 0.04);
+    transition: none;
+  }
+
+  .half[data-dir='delivery'] .img {
+    scale: calc(1 + max(0, var(--p)) * 0.04);
+    transition: none;
+  }
+
+  /* Подпись рассчитана на самую узкую половину (42%), поэтому текст не перестраивается. */
+  .caption {
+    position: absolute;
+    bottom: 0;
+    height: var(--cap-h);
+    width: calc(42cqw - var(--gap));
+    padding-top: 1.5rem;
+  }
+
+  .half[data-dir='events'] .caption {
+    left: 0;
+  }
+
+  /* Правая подпись держится за левый край своей половины и едет вместе с границей. */
+  .half[data-dir='delivery'] .caption {
+    left: calc(50cqw + var(--gap) / 2);
+    transform: translate3d(calc(var(--p) * -8cqw), 0, 0);
+    will-change: transform;
+  }
+
+  .title {
+    font-size: clamp(1.875rem, 2.7vw, 4.25rem);
+  }
+
+  .row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 1.25rem;
+  }
+
+  .text {
+    max-width: 21rem;
+  }
+
+  .link {
+    flex: none;
+    margin-top: 0;
+    padding-block: 0.25rem;
+  }
+}
+
+/* Кадр на мобильном отвечает на касание лёгким приближением. */
+@media (hover: hover) and (pointer: fine) and (max-width: 63.99rem) {
+  .window:hover .img {
+    scale: 1.03;
+  }
+}
