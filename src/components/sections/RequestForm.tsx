@@ -135,7 +135,8 @@ export function RequestForm() {
   // Поле сета и поле с готовым текстом меняют высоту блока — точки привязки к скроллу надо пересчитать.
   // refresh(true) дожидается конца прокрутки: поле может появиться, пока страница едет к форме.
   useEffect(() => {
-    if (wasRendered.current) ScrollTrigger.refresh(true)
+    // ScrollTrigger подгружается после первой отрисовки; если его ещё нет — пересчитывать нечего.
+    if (wasRendered.current) ScrollTrigger?.refresh(true)
     wasRendered.current = true
   }, [isDelivery, copyFailed])
 

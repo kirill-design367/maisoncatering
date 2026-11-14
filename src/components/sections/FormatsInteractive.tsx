@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect } from 'react'
-import { dur, ease, gsap, mq, ScrollTrigger } from '@/lib/gsap'
+import { dur, ease, gsap, mq, ScrollTrigger, type Tween } from '@/lib/gsap'
+import { defer } from '@/lib/schedule'
 
 /**
  * Поведение блока «Форматы мероприятий».
@@ -16,20 +17,24 @@ import { dur, ease, gsap, mq, ScrollTrigger } from '@/lib/gsap'
  * Разметка статическая (Formats.tsx): компонент только навешивает поведение по data-атрибутам.
  */
 export function FormatsInteractive() {
-  useEffect(() => {
-    const root = document.querySelector<HTMLElement>('[data-formats]')
-    if (!root) return
-    const mm = gsap.matchMedia()
+  useEffect(
+    () =>
+      defer(() => {
+        const root = document.querySelector<HTMLElement>('[data-formats]')
+        if (!root) return
+        const mm = gsap.matchMedia()
 
-    // Условия одним объектом: при смене любого из них (ширина, мышь, reduced motion)
-    // прежнее поведение полностью снимается и навешивается заново.
-    mm.add({ desktop: mq.desktop, mobile: mq.mobile, motion: mq.motion, hover: mq.hover }, (context) => {
-      const { desktop, motion, hover } = context.conditions as Record<string, boolean>
-      return desktop ? initRows(root, motion, hover) : initAccordion(root, motion)
-    })
+        // Условия одним объектом: при смене любого из них (ширина, мышь, reduced motion)
+        // прежнее поведение полностью снимается и навешивается заново.
+        mm.add({ desktop: mq.desktop, mobile: mq.mobile, motion: mq.motion, hover: mq.hover }, (context) => {
+          const { desktop, motion, hover } = context.conditions as Record<string, boolean>
+          return desktop ? initRows(root, motion, hover) : initAccordion(root, motion)
+        })
 
-    return () => mm.revert()
-  }, [])
+        return () => mm.revert()
+      }),
+    [],
+  )
 
   return null
 }
@@ -39,7 +44,8 @@ const FADE = 0.15
 /** Непрозрачность текста строк, на которые курсор не наведён. */
 const DIM = 0.35
 
-const { clamp } = gsap.utils
+/** Зажать число в пределах. Своя функция: gsap на уровне модуля ещё не загружен. */
+const clamp = (min: number, max: number, value: number) => Math.min(max, Math.max(min, value))
 
 // ── Десктоп: строки и кадр у курсора ─────────────────────────────────────────
 
@@ -433,7 +439,7 @@ function initAccordion(root: HTMLElement, motion: boolean): () => void {
 
   /** Раскрытый пункт (−1 — все закрыты). */
   let open = -1
-  let tween: gsap.core.Tween | null = null
+  let tween: Tween | null = null
 
   const isOpen = (item: AccordionItem) => item.panel.hasAttribute('data-open')
 
@@ -517,8 +523,16 @@ function initAccordion(root: HTMLElement, motion: boolean): () => void {
 
     if (opening) {
       // Кадр проявляется с лёгким наездом, ссылка — следом.
-      gsap.fromTo(opening.item.img, { autoAlpha: 0, scale: 1.06 }, { autoAlpha: 1, scale: 1, duration: 0.9, ease: ease.out, delay: 0.1, overwrite: true })
-      gsap.fromTo(opening.item.link, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.6, ease: ease.out, delay: 0.3, overwrite: true })
+      gsap.fromTo(
+        opening.item.img,
+        { autoAlpha: 0, scale: 1.06 },
+        { autoAlpha: 1, scale: 1, duration: 0.9, ease: ease.out, delay: 0.1, overwrite: true },
+      )
+      gsap.fromTo(
+        opening.item.link,
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 0.6, ease: ease.out, delay: 0.3, overwrite: true },
+      )
     }
   }
 

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { brand, contacts, mobileMenu, nav, requestSection } from '@/data/site'
-import { ease, gsap, mq } from '@/lib/gsap'
+import { ease, gsap, mq, type Timeline } from '@/lib/gsap'
+import { defer } from '@/lib/schedule'
 import { lockScroll } from '@/lib/scroll'
 import styles from './mobileMenu.module.css'
 
@@ -15,30 +16,39 @@ export function MobileMenu() {
   const [open, setOpen] = useState(false)
   const layerRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
-  const timeline = useRef<gsap.core.Timeline | null>(null)
+  const timeline = useRef<Timeline | null>(null)
 
   // Анимация открытия собирается один раз; закрытие — та же анимация в обратную сторону.
-  useEffect(() => {
-    const layer = layerRef.current
-    if (!layer) return
-    const mm = gsap.matchMedia()
-    mm.add(mq.motion, () => {
-      const items = layer.querySelectorAll('[data-menu-item]')
-      const foot = layer.querySelectorAll('[data-menu-foot]')
-      const tl = gsap
-        .timeline({ paused: true, defaults: { ease: ease.out } })
-        .fromTo(layer, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: ease.inOut }, 0)
-        .fromTo(items, { yPercent: 112 }, { yPercent: 0, duration: 1, stagger: 0.06 }, 0.3)
-        .fromTo(foot, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.06 }, 0.6)
-      timeline.current = tl
-      return () => {
-        tl.kill()
-        timeline.current = null
-        gsap.set([layer, ...items, ...foot], { clearProps: 'all' })
-      }
-    })
-    return () => mm.revert()
-  }, [])
+  useEffect(
+    () =>
+      defer(() => {
+        const layer = layerRef.current
+        if (!layer) return
+        const mm = gsap.matchMedia()
+        mm.add(mq.motion, () => {
+          const items = layer.querySelectorAll('[data-menu-item]')
+          const foot = layer.querySelectorAll('[data-menu-foot]')
+          const tl = gsap
+            .timeline({ paused: true, defaults: { ease: ease.out } })
+            .fromTo(
+              layer,
+              { clipPath: 'inset(0% 0% 100% 0%)' },
+              { clipPath: 'inset(0% 0% 0% 0%)', duration: 0.9, ease: ease.inOut },
+              0,
+            )
+            .fromTo(items, { yPercent: 112 }, { yPercent: 0, duration: 1, stagger: 0.06 }, 0.3)
+            .fromTo(foot, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.06 }, 0.6)
+          timeline.current = tl
+          return () => {
+            tl.kill()
+            timeline.current = null
+            gsap.set([layer, ...items, ...foot], { clearProps: 'all' })
+          }
+        })
+        return () => mm.revert()
+      }),
+    [],
+  )
 
   const close = useCallback((restoreFocus = true) => {
     setOpen(false)

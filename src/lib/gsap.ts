@@ -1,12 +1,32 @@
 'use client'
 
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import type GSAP from 'gsap'
+import type { ScrollTrigger as ScrollTriggerType } from 'gsap/ScrollTrigger'
 
-// Плагины регистрируются один раз здесь. Все компоненты берут gsap и ScrollTrigger из этого файла.
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-  gsap.defaults({ ease: 'expo.out', duration: 1 })
+// GSAP и ScrollTrigger подгружаются после первой отрисовки, а не вместе со страницей:
+// первый экран виден сразу, библиотека анимаций не задерживает его.
+// Все компоненты берут gsap и ScrollTrigger из этого файла, а пользуются ими только внутри defer()
+// (src/lib/schedule.ts) — к этому моменту библиотека уже загружена.
+
+/** Доступен после loadMotion(). Внутри defer() — всегда. */
+export let gsap: typeof GSAP
+/** Доступен после loadMotion(). Внутри defer() — всегда. */
+export let ScrollTrigger: typeof ScrollTriggerType
+
+export type Timeline = gsap.core.Timeline
+export type Tween = gsap.core.Tween
+
+let loading: Promise<void> | null = null
+
+/** Загрузить GSAP и ScrollTrigger (один раз) и зарегистрировать плагин. */
+export function loadMotion(): Promise<void> {
+  loading ??= Promise.all([import('gsap'), import('gsap/ScrollTrigger')]).then(([core, st]) => {
+    gsap = core.gsap
+    ScrollTrigger = st.ScrollTrigger
+    gsap.registerPlugin(ScrollTrigger)
+    gsap.defaults({ ease: 'expo.out', duration: 1 })
+  })
+  return loading
 }
 
 /** Easing и длительности проекта. Линейных переходов нет, кроме scrub-анимаций, привязанных к скроллу. */
@@ -47,5 +67,3 @@ export const mq = {
 export function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia(mq.reduced).matches
 }
-
-export { gsap, ScrollTrigger }

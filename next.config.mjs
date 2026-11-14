@@ -12,6 +12,11 @@ const nextConfig = {
   // /fonts → out/fonts/index.html: работает на любом статическом хостинге.
   trailingSlash: true,
   reactStrictMode: true,
+  experimental: {
+    // Стили встраиваются в HTML: одностраничнику не нужны отдельные запросы за CSS,
+    // первая отрисовка не ждёт их загрузки.
+    inlineCss: true,
+  },
 }
 
 export default nextConfig

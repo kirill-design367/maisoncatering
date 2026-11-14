@@ -11,6 +11,8 @@ import { basePath } from '../site.config.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'out')
 const port = Number(process.env.PORT || 4173)
+// LATENCY=40 — задержка ответа в миллисекундах: имитирует настоящий хостинг при замерах скорости.
+const latency = Number(process.env.LATENCY || 0)
 
 const types = {
   '.html': 'text/html; charset=utf-8',
@@ -58,6 +60,7 @@ async function resolve(urlPath) {
 }
 
 createServer(async (req, res) => {
+  if (latency) await new Promise((resolve) => setTimeout(resolve, latency))
   const url = new URL(req.url, 'http://localhost')
   const hit = await resolve(url.pathname)
   if (!hit) {
