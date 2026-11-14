@@ -15,6 +15,10 @@ export const images = {
       [
         928,
         "/images/gen/direction-delivery-928.avif"
+      ],
+      [
+        1392,
+        "/images/gen/direction-delivery-1392.avif"
       ]
     ],
     "webp": [
@@ -29,6 +33,10 @@ export const images = {
       [
         928,
         "/images/gen/direction-delivery-928.webp"
+      ],
+      [
+        1392,
+        "/images/gen/direction-delivery-1392.webp"
       ]
     ]
   },
@@ -47,6 +55,10 @@ export const images = {
       [
         928,
         "/images/gen/direction-events-928.avif"
+      ],
+      [
+        1392,
+        "/images/gen/direction-events-1392.avif"
       ]
     ],
     "webp": [
@@ -61,6 +73,10 @@ export const images = {
       [
         928,
         "/images/gen/direction-events-928.webp"
+      ],
+      [
+        1392,
+        "/images/gen/direction-events-1392.webp"
       ]
     ]
   },

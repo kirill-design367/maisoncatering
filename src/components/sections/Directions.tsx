@@ -26,7 +26,8 @@ export function Directions() {
                   <Picture
                     name={d.image}
                     alt={d.imageAlt}
-                    sizes="(min-width: 64rem) 58vw, 100vw"
+                    // На телефоне sizes занижен намеренно: увеличенный вариант 1392px там не нужен.
+                    sizes="(min-width: 64rem) 58vw, 72vw"
                     className={styles.picture}
                     imgClassName={styles.img}
                     decorative
