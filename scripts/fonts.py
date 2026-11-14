@@ -31,13 +31,13 @@ FEATURES = ['kern', 'liga', 'locl', 'lnum', 'tnum', 'pnum', 'case', 'ccmp', 'cps
 FONTS = {
     # ── Пара A (стоит на сайте) ──
     'noto-serif-display-300.woff2': ('NotoSerifDisplay[wdth,wght].ttf', {'wght': 300, 'wdth': 100}),
+    'noto-serif-display-200.woff2': ('NotoSerifDisplay[wdth,wght].ttf', {'wght': 200, 'wdth': 100}),
     'jost-300-500.woff2': ('Jost[wght].ttf', {'wght': (300, 500)}),
     # ── Пара B (страница /fonts) ──
     'playfair-300-opsz.woff2': ('Playfair[opsz,wdth,wght].ttf', {'wght': 300, 'wdth': 100, 'opsz': (5, 1200)}),
     'manrope-300-500.woff2': ('Manrope[wght].ttf', {'wght': (300, 500)}),
     # ── Пара C (страница /fonts) ──
-    'cormorant-300.woff2': ('Cormorant[wght].ttf', {'wght': 300}),
-    'commissioner-300-500.woff2': ('Commissioner[FLAR,VOLM,slnt,wght].ttf', {'wght': (300, 500), 'slnt': 0, 'FLAR': 0, 'VOLM': 0}),
+    'literata-200-opsz72.woff2': ('Literata[opsz,wght].ttf', {'wght': 200, 'opsz': 72}),
 }
 
 

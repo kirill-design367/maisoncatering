@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
-import { fontVariables } from './fonts'
+import { fontVariables } from '@/lib/fonts'
 import { meta } from '@/data/site'
 import { absoluteUrl, asset } from '@/lib/asset'
 import { MotionRoot } from '@/components/motion/MotionRoot'

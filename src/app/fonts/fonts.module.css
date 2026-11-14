@@ -1,0 +1,220 @@
+/* Страница /fonts: сравнение шрифтовых пар в финальных кеглях. */
+
+.page {
+  padding-bottom: var(--section);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  height: var(--header-h);
+}
+
+.intro {
+  padding-block: clamp(2.5rem, 5vw, 6rem) clamp(3rem, 6vw, 7rem);
+}
+
+.introText {
+  max-width: 46rem;
+  margin-top: 1.75rem;
+}
+
+/* ── Пара ──────────────────────────────────────────────────────────────────── */
+
+.pair {
+  /* та же геометрия вордмарка, что на первом экране */
+  --wm-size: calc((100vw - 2 * var(--gutter)) * var(--wm-fit));
+  --wm-cap: calc(var(--wm-size) * var(--wm-cap-ratio));
+  /* Семейства объявлены заново внутри пары: переменные темы посчитаны на корне страницы
+     и сами за сменой гарнитуры не следят. */
+  --font-display: var(--font-display-face), 'Times New Roman', Times, serif;
+  --font-text: var(--font-text-face), 'Helvetica Neue', Arial, sans-serif;
+  padding-bottom: clamp(4rem, 8vw, 10rem);
+  font-family: var(--font-text);
+}
+
+.pairHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding-block: 1.5rem clamp(2.5rem, 4vw, 5rem);
+}
+
+.pairName {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(1rem, 2vw, 2.5rem);
+}
+
+.pairLetter {
+  font-size: var(--fs-h3);
+}
+
+.pairFaces {
+  display: flex;
+  flex-direction: column;
+}
+
+.status {
+  flex: none;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--color-line);
+  color: var(--color-bordo);
+}
+
+.wordmark {
+  display: flex;
+  justify-content: space-between;
+  height: var(--wm-cap);
+  font-family: var(--font-wordmark-face, var(--font-display)), var(--font-display);
+  font-weight: var(--wm-weight);
+  font-size: var(--wm-size);
+  font-optical-sizing: auto;
+  line-height: 1;
+  color: var(--color-bordo);
+  text-transform: uppercase;
+}
+
+/* Пары B и C: вордмарк набран той же гарнитурой, что заголовки пары. */
+.pair[style] .wordmark {
+  font-family: var(--font-display);
+}
+
+.letterMask {
+  display: block;
+  height: var(--wm-cap);
+  padding: 0.04em 0.02em;
+  margin: -0.04em -0.02em;
+  box-sizing: content-box;
+  overflow: clip;
+}
+
+.letter {
+  display: block;
+  margin-top: calc(var(--wm-size) * var(--wm-shift));
+}
+
+.suffix {
+  margin-top: 1rem;
+  text-align: right;
+  color: var(--color-bordo);
+  letter-spacing: 0.3em;
+}
+
+.sample {
+  row-gap: 2.5rem;
+  margin-top: clamp(3rem, 6vw, 7rem);
+}
+
+.sampleHeading {
+  grid-column: 1 / -1;
+  /* У гарнитур разная высота прописной при одном кегле: заголовок приведён к той же
+     видимой высоте букв, какой он будет на сайте с этой парой. */
+  font-size: calc(var(--fs-h2) * var(--display-scale, 1));
+  font-optical-sizing: auto;
+}
+
+.sampleLine {
+  display: block;
+}
+
+.sampleBody {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 34rem;
+}
+
+.sampleNav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+}
+
+.sampleDish {
+  margin-top: 0.5rem;
+}
+
+.notes {
+  row-gap: 2rem;
+  margin-top: clamp(3rem, 5vw, 6rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-line-soft);
+}
+
+.rationale {
+  grid-column: 1 / -1;
+  max-width: 44rem;
+}
+
+.facts {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.fact dt {
+  color: var(--color-bordo);
+}
+
+.fact dd {
+  margin-top: 0.375rem;
+  color: var(--color-ink-2);
+}
+
+/* ── Платные ───────────────────────────────────────────────────────────────── */
+
+.paidTitle {
+  margin-top: 2rem;
+}
+
+.paidIntro {
+  max-width: 46rem;
+  margin-top: 1.5rem;
+}
+
+.paidList {
+  display: grid;
+  gap: 2rem;
+  margin-top: 2.5rem;
+}
+
+.paidItem p {
+  max-width: 40rem;
+  margin-top: 0.5rem;
+}
+
+.paidNote {
+  max-width: 46rem;
+  margin-top: 2.5rem;
+}
+
+@media (min-width: 64rem) {
+  .sampleHeading {
+    grid-column: 1 / span 7;
+  }
+
+  .sampleBody {
+    grid-column: 8 / -1;
+    align-self: end;
+  }
+
+  .rationale {
+    grid-column: 1 / span 6;
+  }
+
+  .facts {
+    grid-column: 8 / -1;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .paidList {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+}

@@ -47,8 +47,9 @@
   justify-content: space-between;
   align-items: flex-start;
   height: var(--wm-cap);
-  font-family: var(--font-display);
-  font-weight: var(--display-weight);
+  /* Вордмарк набран самым тонким начертанием семейства (см. src/lib/fonts.ts). */
+  font-family: var(--font-wordmark-face), var(--font-display);
+  font-weight: var(--wm-weight, var(--display-weight));
   font-size: var(--wm-size);
   line-height: 1;
   color: var(--color-bordo);
