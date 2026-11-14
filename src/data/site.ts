@@ -208,6 +208,8 @@ export const formats: EventFormat[] = [
 
 export const menuSection = {
   title: 'Меню',
+  /** Подпись ленты вкладок для скринридеров. */
+  tabsLabel: 'Форматы мероприятий',
   perGuest: 'за гостя',
   from: 'от',
   customLine: 'Индивидуальное меню — по запросу',
@@ -242,6 +244,8 @@ export const setsSection = {
   title: 'Сеты и боксы',
   titleLines: ['Сеты', 'и боксы'],
   note: 'Готовые сеты к вашему столу. Открыли коробку — фуршет накрыт.',
+  /** Подпись ленты карточек на мобильном для скринридеров. */
+  stripLabel: 'Сеты и боксы — листайте вбок',
 } as const
 
 export const sets: DeliverySet[] = [
@@ -358,6 +362,8 @@ export const requestSection = {
   submitMax: 'Отправить в MAX',
   maxHint: 'Текст заявки скопирован — вставьте его в чат',
   maxHintFailed: 'Не удалось скопировать текст. Выделите его ниже и скопируйте вручную.',
+  /** Подпись поля с готовым текстом — оно появляется, только если скопировать не удалось. */
+  manualLabel: 'Текст заявки',
   privacy: 'Сайт ничего не отправляет и не хранит: заявка уходит только из вашего мессенджера.',
   contactsTitle: 'Контакты',
   messengerWhatsapp: 'WhatsApp',
