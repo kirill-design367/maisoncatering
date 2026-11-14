@@ -1,0 +1,105 @@
+.header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 100;
+  height: var(--header-h);
+  background: var(--color-milk);
+  color: var(--color-ink);
+  transition:
+    background-color 0.6s var(--ease-out-expo),
+    color 0.6s var(--ease-out-expo);
+}
+
+.header[data-theme='bordo'] {
+  background: var(--color-bordo);
+  color: var(--color-milk);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* Линия под шапкой появляется, когда страница прокручена. */
+.hairline {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: var(--color-line-soft);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.9s var(--ease-out-expo);
+}
+.header[data-scrolled] .hairline {
+  transform: scaleX(1);
+}
+.header[data-theme='bordo'] .hairline {
+  background: var(--color-milk-line);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.625rem;
+  min-height: 2.75rem;
+  padding-block: 0.5rem;
+  color: var(--color-bordo);
+  transition: color 0.6s var(--ease-out-expo);
+}
+.header[data-theme='bordo'] .brand {
+  color: var(--color-milk);
+}
+
+.brandMain {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brandSuffix {
+  letter-spacing: 0.22em;
+}
+
+/* Пункты — строго по центру шапки, независимо от ширины левой и правой частей. */
+.nav {
+  display: none;
+}
+
+.navList {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 2.6vw, 3.5rem);
+}
+
+.actions {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  .nav {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: clamp(1.25rem, 1.9vw, 2.5rem);
+  }
+}
+
+/* На узком десктопе телефон уступает место пунктам: он остаётся в блоке контактов. */
+@media (min-width: 64rem) and (max-width: 74.99rem) {
+  .phone {
+    display: none;
+  }
+}
