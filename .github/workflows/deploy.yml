@@ -4,7 +4,11 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # main — основная ветка. Вторая — рабочая ветка этапа: пока она не слита в main,
+    # публикация идёт с неё; после слияния эту строку можно удалить.
+    branches:
+      - main
+      - claude/friendly-pasteur-8o6sk1
   workflow_dispatch:
 
 permissions:
