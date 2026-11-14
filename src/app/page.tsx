@@ -1,3 +1,4 @@
+import { a11y } from '@/data/site'
 import { Header } from '@/components/header/Header'
 import { MobileBar } from '@/components/header/MobileBar'
 import { MobileMenu } from '@/components/header/MobileMenu'
@@ -14,7 +15,7 @@ export default function Page() {
   return (
     <>
       <a href="#main" className="skip-link">
-        Перейти к содержанию
+        {a11y.skipLink}
       </a>
       <Header mobileMenu={<MobileMenu />} />
       <main id="main">

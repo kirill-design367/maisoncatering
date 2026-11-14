@@ -7,12 +7,24 @@
   padding: 0.75rem var(--gutter) max(0.75rem, env(safe-area-inset-bottom));
   background: var(--color-milk);
   border-top: 1px solid var(--color-line-soft);
-  transform: translateY(105%);
   transition: transform 0.7s var(--ease-out-expo);
 }
 
-.bar[data-visible] {
+/* Прячется только когда работает JavaScript: без него кнопка просто всегда на месте. */
+:global(.js) .bar {
+  transform: translateY(105%);
+}
+
+:global(.js) .bar[data-visible] {
   transform: none;
+}
+
+/* На очень низком окне (сильное увеличение, телефон боком) панель не занимает экран:
+   кнопка заявки остаётся в блоках и в меню. */
+@media (max-height: 30rem) {
+  .bar {
+    display: none;
+  }
 }
 
 @media (min-width: 64rem) {

@@ -58,8 +58,10 @@ export const dur = {
 export const mq = {
   motion: '(prefers-reduced-motion: no-preference)',
   reduced: '(prefers-reduced-motion: reduce)',
-  desktop: '(min-width: 1024px)',
-  mobile: '(max-width: 1023.98px)',
+  // В rem, как и в CSS (@media (min-width: 64rem)): при увеличенном шрифте браузера
+  // раскладка и поведение переключаются в одной точке.
+  desktop: '(min-width: 64rem)',
+  mobile: '(max-width: 63.99rem)',
   /** Есть мышь или трекпад: эффекты наведения и следования за курсором. */
   hover: '(hover: hover) and (pointer: fine)',
 } as const

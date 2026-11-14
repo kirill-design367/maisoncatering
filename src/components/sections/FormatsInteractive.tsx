@@ -42,7 +42,8 @@ export function FormatsInteractive() {
 /** Длительность проявления при prefers-reduced-motion. */
 const FADE = 0.15
 /** Непрозрачность текста строк, на которые курсор не наведён. */
-const DIM = 0.35
+// 0.62: приглушённые строки остаются читаемыми (цена — контраст 4,6:1)
+const DIM = 0.62
 
 /** Зажать число в пределах. Своя функция: gsap на уровне модуля ещё не загружен. */
 const clamp = (min: number, max: number, value: number) => Math.min(max, Math.max(min, value))

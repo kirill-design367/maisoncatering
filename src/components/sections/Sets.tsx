@@ -70,7 +70,7 @@ export function Sets() {
           </p>
         </div>
 
-        <div className={styles.strip} role="region" aria-label={setsSection.stripLabel} tabIndex={0} data-sets-strip data-reveal="fade">
+        <div className={styles.strip} data-sets-strip data-label={setsSection.stripLabel} data-reveal="fade">
           <div className={styles.grid}>
             {sets.map((set) => (
               <SetCard key={set.id} set={set} />

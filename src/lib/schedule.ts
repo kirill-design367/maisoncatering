@@ -7,6 +7,13 @@
 
 import { loadMotion } from './gsap'
 
+declare global {
+  interface Window {
+    /** Анимации готовы к работе. Пока флага нет, скрипт в <head> через 4 секунды покажет содержимое без них. */
+    __motionReady?: boolean
+  }
+}
+
 type Setup = () => void | (() => void)
 
 type Job = { setup: Setup; cleanup?: void | (() => void); done: boolean; cancelled: boolean }
@@ -46,10 +53,18 @@ function start() {
   // и очередь начинает выполняться.
   requestAnimationFrame(() =>
     requestAnimationFrame(() => {
-      loadMotion().then(() => {
-        ready = true
-        kick()
-      })
+      loadMotion().then(
+        () => {
+          // С этого момента исходные состояния анимаций точно будут сняты самими анимациями.
+          window.__motionReady = true
+          ready = true
+          kick()
+        },
+        () => {
+          // GSAP не загрузился (обрыв сети): показываем всё содержимое без анимаций.
+          document.documentElement.classList.remove('js')
+        },
+      )
     }),
   )
 }

@@ -59,6 +59,8 @@ export function Menu() {
                       role="tabpanel"
                       id={`menu-panel-${f.id}`}
                       aria-labelledby={`menu-tab-${f.id}`}
+                      // панель в порядке фокуса: после выбора вкладки Tab попадает в её содержимое
+                      tabIndex={0}
                       className={styles.panel}
                       data-format={f.id}
                       data-inactive={i === 0 ? undefined : ''}

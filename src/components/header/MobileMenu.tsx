@@ -114,12 +114,24 @@ export function MobileMenu() {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') close()
     }
+
+    // Переход по якорю вне меню (вордмарк в шапке) тоже закрывает меню: иначе страница
+    // прокручивается под открытым слоем, а человек не видит реакции.
+    const onAnchor = (e: MouseEvent) => {
+      if ((e.target as Element | null)?.closest('a[href^="#"]')) close(false)
+    }
+    document.addEventListener('click', onAnchor, true)
+    // Ссылка «Перейти к содержанию» ведёт в содержимое, которое сейчас недоступно, — выключаем её.
+    const skip = document.querySelector<HTMLElement>('.skip-link')
+    skip?.setAttribute('inert', '')
     const desktop = window.matchMedia(mq.desktop)
     const onDesktop = () => desktop.matches && close(false)
     document.addEventListener('keydown', onKey)
     desktop.addEventListener('change', onDesktop)
     return () => {
       document.removeEventListener('keydown', onKey)
+      document.removeEventListener('click', onAnchor, true)
+      skip?.removeAttribute('inert')
       desktop.removeEventListener('change', onDesktop)
     }
   }, [open, close])

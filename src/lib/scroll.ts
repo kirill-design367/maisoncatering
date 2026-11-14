@@ -39,7 +39,8 @@ function headerOffset(): number {
 function targetTop(target: HTMLElement): number {
   const scrollY = window.scrollY
   const rect = target.getBoundingClientRect()
-  if (target.hasAttribute('data-scroll-flush')) return rect.top + scrollY
+  // Не блок страницы (например <main> для ссылки «Перейти к содержанию») — просто в начало элемента.
+  if (target.hasAttribute('data-scroll-flush') || !target.matches('section')) return rect.top + scrollY
 
   const header = headerOffset()
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16

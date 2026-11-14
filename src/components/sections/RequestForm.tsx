@@ -98,9 +98,8 @@ export function RequestForm() {
     setStatus('idle')
   }
 
-  const onText =
-    (field: TextField) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
-      update({ [field]: event.target.value })
+  const onText = (field: TextField) => (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    update({ [field]: event.target.value })
 
   const onFormat = (event: ChangeEvent<HTMLSelectElement>) => {
     const { value } = event.target
@@ -167,7 +166,16 @@ export function RequestForm() {
   const manualText = copyFailed ? buildRequestMessage(values) : ''
 
   return (
-    <form className={styles.form} onSubmit={openWhatsapp} noValidate data-reveal-group>
+    <form
+      className={styles.form}
+      // action — на случай неработающего JavaScript: форма хотя бы откроет чат WhatsApp.
+      action={contacts.whatsappUrl}
+      target="_blank"
+      rel="noopener"
+      onSubmit={openWhatsapp}
+      noValidate
+      data-reveal-group
+    >
       <div className={styles.row} data-reveal="fade">
         <div className={styles.field}>
           <label className={`t-label ${styles.label}`} htmlFor={ids.name}>

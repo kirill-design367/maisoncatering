@@ -30,7 +30,8 @@
 .title {
   grid-column: 1 / -1;
   /* На самых узких экранах слово «мероприятий» не должно выходить за поля. */
-  font-size: min(var(--fs-h2), calc((100vw - 2 * var(--gutter)) / 7.7));
+  /* «МЕРОПРИЯТИЙ» — 7,82 кегля в ширину: делитель с запасом, слово не выходит за поля */
+  font-size: min(var(--fs-h2), calc((100vw - 2 * var(--gutter)) / 7.95));
 }
 
 .note {
@@ -77,7 +78,8 @@
 
   /* Рамка фокуса — внутри строки, чтобы не ложиться на волосные линии. */
   .row:focus-visible {
-    outline-offset: -0.5rem;
+    /* рамка фокуса идёт по краю строки и не пересекает ни название, ни цену */
+    outline-offset: -2px;
   }
 
   .rowText {
@@ -212,6 +214,14 @@
 .markV {
   position: absolute;
   background: var(--color-bordo);
+}
+
+/* Режим высокой контрастности: линии нарисованы фоном, а фон в этом режиме заменяется. */
+@media (forced-colors: active) {
+  .markH,
+  .markV {
+    background: CanvasText;
+  }
 }
 
 .markH {

@@ -25,6 +25,7 @@
 }
 
 .window {
+  position: relative;
   display: block;
   overflow: hidden;
   /* Кадр почти во весь экран. */
@@ -36,6 +37,12 @@
   display: block;
   width: 100%;
   height: 100%;
+}
+
+/* Невидимая ссылка поверх кадра: кадр кликабелен целиком. */
+.windowLink {
+  position: absolute;
+  inset: 0;
 }
 
 .img {

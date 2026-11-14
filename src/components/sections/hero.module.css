@@ -17,7 +17,11 @@
   /* Высота блока с подписями и кнопкой вместе с отступом от низа экрана. */
   --text-h: 13.75rem;
   --gap: 1.5rem;
-  --free: calc(100svh - var(--base-top) - var(--wm-cap) * var(--overlap) - var(--gap) - var(--text-h));
+  /* Высота первого экрана: окно, но не меньше, чем нужно всей композиции с тарелкой от 11rem.
+     На низком окне (телефон боком, сильное увеличение) блок становится выше окна, а не теряет тарелку. */
+  --min-h: calc(var(--base-top) + var(--wm-cap) * var(--overlap) + 11rem + var(--gap) + var(--text-h));
+  --vh: max(100svh, var(--min-h));
+  --free: calc(var(--vh) - var(--base-top) - var(--wm-cap) * var(--overlap) - var(--gap) - var(--text-h));
   --plate-d: min(96vw, var(--free));
   --slack: max(0px, var(--free) - var(--plate-d));
   --wm-top: calc(var(--base-top) + var(--slack) * 0.6);
@@ -25,8 +29,7 @@
 
   position: relative;
   z-index: 0;
-  height: 100svh;
-  min-height: 36rem;
+  height: var(--vh);
   background: var(--color-milk);
   /* Тень тарелки шире экрана на мобильном: по горизонтали обрезаем, по вертикали — нет
      (тарелка при прокрутке уходит вниз, под следующий блок). */
@@ -39,8 +42,9 @@
     --text-h: 15rem;
     /* Тарелка перекрывает нижнюю половину букв. */
     --plate-top: calc(var(--wm-top) + var(--wm-cap) * 0.44);
-    --plate-d: min(40vw, calc(100svh - var(--plate-top) - var(--text-h)));
-    min-height: 40rem;
+    /* Тарелка не меньше 14rem: на низком окне блок становится выше окна. */
+    --min-h: calc(var(--plate-top) + 14rem + var(--text-h));
+    --plate-d: min(40vw, calc(var(--vh) - var(--plate-top) - var(--text-h)));
   }
 }
 

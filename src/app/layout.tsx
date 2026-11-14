@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { fontVariables } from '@/lib/fonts'
-import { meta } from '@/data/site'
+import { brand, meta } from '@/data/site'
 import { absoluteUrl, asset } from '@/lib/asset'
 import { MotionRoot } from '@/components/motion/MotionRoot'
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ru_RU',
     url: absoluteUrl('/'),
-    siteName: 'Maison catering',
+    siteName: brand.name,
     title: meta.ogTitle,
     description: meta.ogDescription,
     images: [{ url: absoluteUrl('/og.jpg'), width: 1200, height: 630, alt: meta.ogTitle }],

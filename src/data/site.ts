@@ -52,6 +52,15 @@ export const nav = [
   { label: 'Контакты', href: `#${sectionIds.request}` },
 ] as const
 
+/** Подписи для клавиатуры и скринридеров. */
+export const a11y = {
+  skipLink: 'Перейти к содержанию',
+  /** Вордмарк в шапке: «Maison catering — в начало страницы». */
+  toTop: 'в начало страницы',
+  navLabel: 'Разделы сайта',
+  directionsLabel: 'Направления',
+} as const
+
 /** Мобильное меню: подписи для скринридеров. */
 export const mobileMenu = {
   title: 'Меню сайта',

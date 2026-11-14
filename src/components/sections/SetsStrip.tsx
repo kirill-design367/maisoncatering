@@ -19,6 +19,17 @@ export function SetsStrip() {
         const update = () => {
           frame = 0
           const max = strip.scrollWidth - strip.clientWidth
+          // Областью прокрутки (для клавиатуры и скринридера) лента становится, только когда она листается:
+          // на десктопе это обычная таблица.
+          if (max > 0) {
+            strip.setAttribute('role', 'region')
+            strip.setAttribute('aria-label', strip.dataset.label ?? '')
+            strip.tabIndex = 0
+          } else {
+            strip.removeAttribute('role')
+            strip.removeAttribute('aria-label')
+            strip.removeAttribute('tabindex')
+          }
           if (max <= 0) return
           const visible = strip.clientWidth / strip.scrollWidth
           const progress = strip.scrollLeft / max

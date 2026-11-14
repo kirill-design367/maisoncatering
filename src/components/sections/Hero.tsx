@@ -19,7 +19,7 @@ export function Hero() {
   preload(href, { as: 'image', fetchPriority: 'high', ...plate })
 
   return (
-    <section id={sectionIds.top} className={styles.hero} data-hero data-scroll-flush>
+    <section id={sectionIds.top} className={styles.hero} aria-labelledby="hero-title" data-hero data-scroll-flush>
       {/* Вордмарк — графика: название бренда для скринридеров есть в шапке. */}
       <div className={styles.wordmark} aria-hidden="true" data-hero-wordmark>
         {brand.wordmark.split('').map((letter, i) => (
@@ -44,7 +44,7 @@ export function Hero() {
 
       <div className={styles.text} data-hero-text>
         {/* Заголовок страницы: надстрочник называет, что и где, строка — зачем. */}
-        <h1 className={styles.heading}>
+        <h1 id="hero-title" className={styles.heading}>
           <span className={`t-label ${styles.eyebrow}`} data-hero-fade>
             {hero.eyebrow}
           </span>

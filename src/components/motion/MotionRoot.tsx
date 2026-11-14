@@ -6,12 +6,6 @@ import { dur, ease, gsap, mq, ScrollTrigger } from '@/lib/gsap'
 import { defer } from '@/lib/schedule'
 import { goToSection, setLenis } from '@/lib/scroll'
 
-declare global {
-  interface Window {
-    __motionReady?: boolean
-  }
-}
-
 /**
  * Общий слой движения страницы. Подключается один раз в layout.
  *  1. Плавная прокрутка Lenis на одном тикере с GSAP (на тач-устройствах прокрутка нативная,
@@ -21,10 +15,7 @@ declare global {
  * При prefers-reduced-motion Lenis не запускается, а содержимое видно сразу (это делает CSS).
  */
 export function MotionRoot() {
-  useEffect(() => {
-    window.__motionReady = true
-    return defer(setup)
-  }, [])
+  useEffect(() => defer(setup), [])
 
   return null
 }
@@ -40,14 +31,17 @@ function setup() {
     let cancelled = false
     const tick = (time: number) => lenis?.raf(time * 1000)
 
-    import('lenis').then(({ default: LenisClass }) => {
-      if (cancelled) return
-      lenis = new LenisClass({ lerp: 0.1, smoothWheel: true, anchors: false })
-      setLenis(lenis)
-      lenis.on('scroll', ScrollTrigger.update)
-      gsap.ticker.add(tick)
-      gsap.ticker.lagSmoothing(0)
-    })
+    import('lenis')
+      .then(({ default: LenisClass }) => {
+        if (cancelled) return
+        lenis = new LenisClass({ lerp: 0.1, smoothWheel: true, anchors: false })
+        setLenis(lenis)
+        lenis.on('scroll', ScrollTrigger.update)
+        gsap.ticker.add(tick)
+        gsap.ticker.lagSmoothing(0)
+      })
+      // Не загрузилась — остаётся обычная прокрутка браузера.
+      .catch(() => {})
 
     return () => {
       cancelled = true
@@ -80,24 +74,50 @@ function setup() {
           gsap.to(el, { scaleX: 1, duration: 1.4, ease: ease.out, delay: at })
           break
         case 'mask':
-          gsap.to(el, { clipPath: 'inset(0% 0 0 0)', duration: 1.4, ease: ease.out, delay: at })
+          // шторка — на вложенном элементе (см. globals.css)
+          gsap.to(el.firstElementChild, { clipPath: 'inset(0% 0 0 0)', duration: 1.4, ease: ease.out, delay: at })
           break
         default:
           gsap.to(el, { opacity: 1, y: 0, duration: dur.block, ease: ease.out, delay: at })
       }
     }
 
+    // Показать сразу, без анимации: блок уже выше экрана (страница открыта с середины,
+    // по якорю или восстановлена после перезагрузки) — анимировать то, чего не видно, незачем.
+    const show = (el: HTMLElement) => {
+      switch (el.dataset.reveal) {
+        case 'lines':
+          gsap.set(el.querySelectorAll('.line__inner'), { y: 0, yPercent: 0 })
+          break
+        case 'rule':
+          gsap.set(el, { scaleX: 1 })
+          break
+        case 'mask':
+          gsap.set(el.firstElementChild, { clipPath: 'inset(0% 0 0 0)' })
+          break
+        default:
+          gsap.set(el, { opacity: 1, y: 0 })
+      }
+    }
+    const passed = (entry: IntersectionObserverEntry) => !entry.isIntersecting && entry.boundingClientRect.bottom < 0
+
     // За входом в экран следит IntersectionObserver: он не читает раскладку и не требует
     // пересчёта позиций, в отличие от десятков отдельных триггеров.
-    const groups = new Map<Element, HTMLElement[]>()
+    const groups = new Map<Element, { group: HTMLElement; items: HTMLElement[] }>()
     const groupObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return
-          const group = entry.target as HTMLElement
-          const step = parseFloat(group.dataset.revealGroup || '') || 0.08
-          groups.get(group)?.forEach((el, i) => play(el, i * step))
-          groupObserver.unobserve(group)
+          const found = groups.get(entry.target)
+          if (!found) return
+          if (entry.isIntersecting) {
+            const step = parseFloat(found.group.dataset.revealGroup || '') || 0.08
+            found.items.forEach((el, i) => play(el, i * step))
+          } else if (passed(entry)) {
+            found.items.forEach(show)
+          } else {
+            return
+          }
+          groupObserver.unobserve(entry.target)
         })
       },
       // группа срабатывает, когда её верх поднялся на 14% высоты экрана от нижнего края
@@ -105,12 +125,14 @@ function setup() {
     )
     const singleObserver = new IntersectionObserver(
       (entries) => {
-        entries
-          .filter((entry) => entry.isIntersecting)
-          .forEach((entry, i) => {
-            play(entry.target as HTMLElement, i * 0.08)
-            singleObserver.unobserve(entry.target)
-          })
+        let order = 0
+        entries.forEach((entry) => {
+          const el = entry.target as HTMLElement
+          if (entry.isIntersecting) play(el, order++ * 0.08)
+          else if (passed(entry)) show(el)
+          else return
+          singleObserver.unobserve(el)
+        })
       },
       { rootMargin: '0px 0px -10% 0px' },
     )
@@ -120,8 +142,11 @@ function setup() {
       const items = Array.from(group.querySelectorAll<HTMLElement>('[data-reveal]')).filter(
         (el) => el.closest('[data-reveal-group]') === group,
       )
-      groups.set(group, items)
-      groupObserver.observe(group)
+      // У группы может не быть собственной высоты (её дети расставлены абсолютно) —
+      // тогда наблюдаем за первым её элементом.
+      const target = group.getBoundingClientRect().height > 0 ? group : (items[0] ?? group)
+      groups.set(target, { group, items })
+      groupObserver.observe(target)
     })
 
     // Одиночные элементы.

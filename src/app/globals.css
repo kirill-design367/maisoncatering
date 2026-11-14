@@ -44,8 +44,10 @@
   --header-h: 3.75rem;
 
   /* Кегли. Заголовки привязаны к ширине окна, текст — к rem с нижней границей. */
-  --fs-h2: clamp(2.5rem, 11.5vw, 3.25rem);
-  --fs-list: clamp(2.375rem, 11vw, 3.25rem);
+  /* Верхняя граница — от ширины строки: при увеличенном шрифте браузера длинное слово заголовка
+     («РАССКАЖИТЕ» — 6,7 кегля в ширину) не вылезает за поля. У «МЕРОПРИЯТИЙ» своя граница в блоке форматов. */
+  --fs-h2: min(clamp(2.5rem, 11.5vw, 3.25rem), calc((100vw - 2 * var(--gutter)) / 7.1));
+  --fs-list: min(clamp(2.375rem, 11vw, 3.25rem), calc((100vw - 2 * var(--gutter)) / 7.1));
   --fs-h3: clamp(1.625rem, 7vw, 2rem);
   --fs-lead: 1.25rem;
   --fs-body: 1rem;
@@ -100,6 +102,13 @@ html {
   scroll-padding-top: var(--header-h);
   /* Страница никогда не прокручивается вбок. */
   overflow-x: clip;
+}
+
+/* На телефоне внизу закреплена кнопка заявки: элемент в фокусе не должен оказаться под ней. */
+@media (max-width: 63.99rem) {
+  html {
+    scroll-padding-bottom: 5.5rem;
+  }
 }
 
 /* На десктопе корневой кегль привязан к ширине окна: 1920 → 16px, 2560 → 21.3px.
@@ -359,6 +368,13 @@ html.lenis body {
   width: 100%;
 }
 
+/* На телефоне длинная подпись кнопки переносится, а не обрезается (увеличенный шрифт браузера). */
+@media (max-width: 63.99rem) {
+  .btn {
+    white-space: normal;
+  }
+}
+
 .btn--small {
   min-height: 2.75rem;
   padding: 0.625rem 1.25rem;
@@ -460,7 +476,7 @@ html.lenis body {
    data-reveal="lines" — заголовок построчно: строки выезжают из-под маски;
    data-reveal="fade"  — текст и блоки: мягко проявляются со сдвигом;
    data-reveal="rule"  — линия прочерчивается слева направо;
-   data-reveal="mask"  — кадр открывается шторкой снизу вверх. */
+   data-reveal="mask"  — кадр открывается шторкой снизу вверх (шторка — на первом вложенном элементе). */
 
 .line {
   display: block;
@@ -485,7 +501,9 @@ html.lenis body {
   .js [data-reveal='rule'] {
     transform: scaleX(0);
   }
-  .js [data-reveal='mask'] {
+  /* Шторка лежит на вложенном элементе, а не на самом кадре: за кадром следит
+     IntersectionObserver, а полностью обрезанный элемент он считает невидимым. */
+  .js [data-reveal='mask'] > :first-child {
     clip-path: inset(100% 0 0 0);
   }
 }

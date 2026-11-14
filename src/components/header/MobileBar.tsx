@@ -22,6 +22,10 @@ export function MobileBar() {
         const end = document.getElementById(sectionIds.request)
         if (!bar || !start || !end) return
 
+        // Пока панель спрятана, она недоступна для фокуса (без JavaScript она просто всегда видна).
+
+        bar.setAttribute('inert', '')
+
         const trigger = ScrollTrigger.create({
           trigger: start,
           start: 'top 75%',
@@ -39,7 +43,7 @@ export function MobileBar() {
   )
 
   return (
-    <div ref={ref} className={styles.bar} data-mobile-bar inert>
+    <div ref={ref} className={styles.bar} data-mobile-bar>
       <a href={`#${sectionIds.request}`} className="btn btn--block">
         {cta.discussEvent}
       </a>

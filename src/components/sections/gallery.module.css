@@ -38,8 +38,6 @@
 .mask {
   position: relative;
   overflow: hidden;
-  /* кадр ещё не загрузился — на его месте тихая подложка */
-  background: var(--color-line-soft);
 }
 
 .picture {

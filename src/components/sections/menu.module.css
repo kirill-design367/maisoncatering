@@ -26,7 +26,8 @@
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
-  /* у правого края лента растворяется, пока не докручена до конца */
+  /* у правого края лента растворяется, пока не докручена до конца
+     (#000 здесь — не цвет интерфейса, а непрозрачная часть маски) */
   mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
 }
 
@@ -71,6 +72,17 @@
 
 .card[data-ready] .indicator {
   transition: transform 0.6s var(--ease-in-out);
+}
+
+/* Режим высокой контрастности: линия нарисована фоном, а фон в этом режиме заменяется. */
+@media (forced-colors: active) {
+  .indicator {
+    background: CanvasText;
+  }
+
+  .tab[aria-selected='true'] {
+    text-decoration: underline;
+  }
 }
 
 /* Двойная рамка карты: на мобильном она обнимает только саму карту под лентой. */
