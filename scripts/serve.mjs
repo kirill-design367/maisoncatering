@@ -72,7 +72,8 @@ createServer(async (req, res) => {
   }
   const ext = path.extname(hit.file)
   const gzip = compressible.has(ext) && /\bgzip\b/.test(req.headers['accept-encoding'] || '')
-  const key = `${hit.file}:${gzip}`
+  // Ключ кэша включает время изменения: после пересборки отдаются свежие файлы.
+  const key = `${hit.file}:${gzip}:${(await stat(hit.file)).mtimeMs}`
   let body = cache.get(key)
   if (!body) {
     body = await readFile(hit.file)
