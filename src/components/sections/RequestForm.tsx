@@ -15,6 +15,7 @@ import {
   type RequestValues,
 } from './requestMessage'
 import styles from './request.module.css'
+import { typo } from '@/lib/typo'
 
 /** Что сказать под кнопками: ничего, «текст скопирован» или «скопировать не удалось». */
 type Status = 'idle' | 'copied' | 'failed'
@@ -322,7 +323,7 @@ export function RequestForm() {
           </div>
         )}
 
-        <p className={`t-small t-muted ${styles.privacy}`}>{requestSection.privacy}</p>
+        <p className={`t-small t-muted ${styles.privacy}`}>{typo(requestSection.privacy)}</p>
       </div>
     </form>
   )

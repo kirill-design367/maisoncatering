@@ -1,6 +1,7 @@
 import { cta, formatPrice, sectionIds, sets, setsSection, type DeliverySet } from '@/data/site'
 import { Lines } from '@/components/ui/Lines'
 import { Picture } from '@/components/ui/Picture'
+import { typo } from '@/lib/typo'
 import { SetsStrip } from './SetsStrip'
 import styles from './sets.module.css'
 
@@ -65,7 +66,7 @@ export function Sets() {
         <div className={`grid-12 ${styles.head}`}>
           <Lines lines={setsSection.titleLines} as="h2" id="sets-title" className={`t-display t-h2 ${styles.title}`} />
           <p className={`t-body t-muted ${styles.note}`} data-reveal="fade">
-            {setsSection.note}
+            {typo(setsSection.note)}
           </p>
         </div>
 

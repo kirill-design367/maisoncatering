@@ -30,16 +30,37 @@ function headerOffset(): number {
 }
 
 /**
- * Плавно прокрутить к блоку. Экран заявки и первый экран занимают всё окно и встают вплотную
- * к верху; остальные блоки — под шапкой.
+ * Куда встать, чтобы блок был виден лучшим образом.
+ *  — Первый экран и экран заявки (data-scroll-flush) занимают всё окно: встают вплотную к верху.
+ *  — Блок с отмеченной частью (data-scroll-anchor, например карта меню) показывает её целиком:
+ *    по центру под шапкой, если помещается.
+ *  — Остальные блоки: заголовок встаёт под шапку с небольшим воздухом, а не через весь верхний отступ блока.
  */
+function targetTop(target: HTMLElement): number {
+  const scrollY = window.scrollY
+  const rect = target.getBoundingClientRect()
+  if (target.hasAttribute('data-scroll-flush')) return rect.top + scrollY
+
+  const header = headerOffset()
+  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+  const anchor = target.querySelector<HTMLElement>('[data-scroll-anchor]')
+  if (anchor) {
+    const box = anchor.getBoundingClientRect()
+    const free = window.innerHeight - header - box.height
+    return box.top + scrollY - header - Math.max(rem, free / 2)
+  }
+
+  const padTop = parseFloat(getComputedStyle(target).paddingTop) || 0
+  const air = Math.min(padTop, 4.5 * rem)
+  return rect.top + scrollY + padTop - air - header + 1
+}
+
+/** Плавно прокрутить к блоку. */
 export function scrollToTarget(target: HTMLElement, opts: { immediate?: boolean } = {}) {
-  const flush = target.hasAttribute('data-scroll-flush')
-  const offset = flush ? 0 : -headerOffset() + 1
   const immediate = opts.immediate || prefersReducedMotion()
   // Позиция считается здесь и передаётся числом: по элементу Lenis сам добавляет
   // scroll-padding-top страницы, и отступ под шапку получился бы двойным.
-  const top = Math.max(0, Math.round(target.getBoundingClientRect().top + window.scrollY + offset))
+  const top = Math.max(0, Math.round(targetTop(target)))
   if (lenis) {
     lenis.scrollTo(top, {
       immediate,

@@ -15,6 +15,11 @@
   color: var(--color-milk);
 }
 
+/* Открытое мобильное меню молочное: шапка над ним не должна мигать при смене цвета. */
+.header[data-menu-open] {
+  transition: none;
+}
+
 .row {
   position: relative;
   display: flex;
@@ -85,12 +90,16 @@
 }
 
 @media (min-width: 64rem) {
+  /* Пункты центрируются по высоте так же, как телефон и кнопка (flex), а не сдвигом на половину
+     своей высоты: иначе текст вставал бы на полпикселя выше соседей. */
   .nav {
-    display: block;
+    display: flex;
+    align-items: center;
     position: absolute;
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    height: 100%;
+    transform: translateX(-50%);
   }
 
   .actions {

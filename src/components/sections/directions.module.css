@@ -3,9 +3,17 @@
 .section {
   position: relative;
   z-index: 1;
+  /* У блока нет своего фона сверху: тарелка первого экрана уходит за край кадров,
+     а не обрезается невидимой полосой над ними. Фон — у сцены и у нижнего отступа. */
+  padding-top: 1.5rem;
+}
+
+/* Нижний отступ блока — с фоном, чтобы шаг до следующего блока был как у остальных. */
+.section::after {
+  content: '';
+  display: block;
+  height: var(--section);
   background: var(--color-milk);
-  /* Сверху отступ небольшой: воздух даёт низ первого экрана. */
-  padding-block: 1.5rem 0;
 }
 
 /* ── Мобильная композиция: две карточки друг под другом ─────────────────────── */
@@ -13,6 +21,7 @@
 .stage {
   display: grid;
   row-gap: 4.5rem;
+  background: var(--color-milk);
 }
 
 .window {
@@ -52,9 +61,11 @@
 }
 
 .link {
-  margin-top: 1rem;
   /* область касания не меньше 44px */
-  padding-block: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  margin-top: 0.75rem;
   color: var(--color-bordo);
 }
 
@@ -62,7 +73,7 @@
 
 @media (min-width: 64rem) {
   .section {
-    padding-block: var(--header-h) 0;
+    padding-top: var(--header-h);
   }
 
   .stage {
@@ -70,8 +81,8 @@
     --p: 0;
     /* Зазор между кадрами. */
     --gap: 1.25rem;
-    /* Высота подписи под кадром. */
-    --cap-h: 13.5rem;
+    /* Высота подписи под кадром: текст не доходит до низа экрана на величину бокового поля. */
+    --cap-h: 15.5rem;
 
     position: relative;
     display: block;
@@ -169,8 +180,21 @@
 
   .link {
     flex: none;
+    display: inline-block;
+    min-height: 0;
     margin-top: 0;
     padding-block: 0.25rem;
+    will-change: transform;
+  }
+
+  /* Подпись рассчитана на узкую половину, а ссылка держится за правый край своего кадра
+     и едет вместе с ним — тоже только трансформацией. */
+  .half[data-dir='events'] .link {
+    transform: translate3d(calc((8 - var(--p) * 8) * 1cqw + var(--gap) / 2), 0, 0);
+  }
+
+  .half[data-dir='delivery'] .link {
+    transform: translate3d(calc((8 + var(--p) * 8) * 1cqw + var(--gap) / 2), 0, 0);
   }
 }
 

@@ -1,6 +1,7 @@
 import { directions, sectionIds } from '@/data/site'
 import { Lines } from '@/components/ui/Lines'
 import { Picture } from '@/components/ui/Picture'
+import { typo } from '@/lib/typo'
 import { DirectionsSplit } from './DirectionsSplit'
 import styles from './directions.module.css'
 
@@ -37,7 +38,7 @@ export function Directions() {
               <div className={styles.caption} data-dir-hit={d.id}>
                 <Lines lines={d.titleLines} as="h2" className={`t-display ${styles.title}`} />
                 <div className={styles.row} data-reveal="fade">
-                  <p className={`t-body ${styles.text}`}>{d.text}</p>
+                  <p className={`t-body ${styles.text}`}>{typo(d.text)}</p>
                   <a href={d.href} className={`t-label link ${styles.link}`}>
                     {d.linkLabel}
                   </a>

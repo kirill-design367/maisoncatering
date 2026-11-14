@@ -20,11 +20,18 @@
 .tabs {
   position: relative;
   display: flex;
-  gap: 1.75rem;
+  /* шаг подобран так, чтобы на телефоне последняя вкладка была видна краем: понятно, что лента листается */
+  gap: 1.25rem;
   padding-inline: var(--gutter);
   overflow-x: auto;
   overscroll-behavior-x: contain;
   scrollbar-width: none;
+  /* у правого края лента растворяется, пока не докручена до конца */
+  mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+}
+
+.tabs[data-end] {
+  mask-image: none;
 }
 .tabs::-webkit-scrollbar {
   display: none;
@@ -84,17 +91,13 @@
   margin-top: 3rem;
 }
 
-:global(.js) .panels {
-  display: grid;
-}
-
 :global(.js) .panel {
-  grid-area: 1 / 1;
   margin-top: 0;
 }
 
+/* На телефоне высота карты равна открытой вкладке: в коротких меню нет пустоты. */
 :global(.js) .panel[data-inactive] {
-  visibility: hidden;
+  display: none;
 }
 
 .name {
@@ -134,8 +137,12 @@
   color: var(--color-bordo);
 }
 
-.single {
-  font-size: 1.0625rem;
+/* Все блюда набраны одним кеглем — и с названием подачи, и без него. */
+.dishText {
+  font-size: var(--fs-body);
+  font-weight: 300;
+  line-height: 1.5;
+  text-wrap: pretty;
 }
 
 .foot {
@@ -179,11 +186,13 @@
     margin-inline: 0;
   }
 
-  .tabs {
+  .tabs,
+  .tabs[data-end] {
     justify-content: center;
     gap: clamp(2rem, 3.2vw, 4.5rem);
     padding-inline: 0;
     overflow: visible;
+    mask-image: none;
   }
 
   .tab {
@@ -201,11 +210,26 @@
     margin-top: 3.5rem;
   }
 
-  /* Слева — название формата и цена, справа — блюда; между ними тонкая линия. */
+  /* На десктопе все панели лежат в одной ячейке: высота карты равна самой высокой вкладке
+     и не прыгает при переключении. */
+  :global(.js) .panels {
+    display: grid;
+  }
+
+  :global(.js) .panel {
+    grid-area: 1 / 1;
+  }
+
+  :global(.js) .panel[data-inactive] {
+    display: grid;
+    visibility: hidden;
+  }
+
+  /* Слева — название формата и цена, справа — блюда; между ними тонкая линия во всю высоту карты. */
   .panel {
     display: grid;
     grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
-    align-items: start;
+    align-items: stretch;
   }
 
   .panelHead {
@@ -230,6 +254,10 @@
     padding-block: 1.125rem;
   }
 
+  .dishText {
+    font-size: max(1.125rem, 17px);
+  }
+
   .dish:first-child {
     padding-top: 0;
     border-top: 0;
@@ -237,11 +265,6 @@
 
   .dish:last-child {
     padding-bottom: 0;
-  }
-
-  .single {
-    font-size: var(--fs-lead);
-    line-height: 1.35;
   }
 
   .foot {

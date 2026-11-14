@@ -3,6 +3,7 @@ import { brand, cta, hero, sectionIds } from '@/data/site'
 import { Picture, preloadProps } from '@/components/ui/Picture'
 import { HeroMotion } from './HeroMotion'
 import styles from './hero.module.css'
+import { typo } from '@/lib/typo'
 
 // Тарелка занимает до 40% ширины на десктопе и ~90% на мобильном.
 // Для мобильного sizes занижен намеренно: на экранах ×3 хватает варианта 757px — это вес первого экрана.
@@ -49,7 +50,7 @@ export function Hero() {
           </span>
           <span className="sr-only">. </span>
           <span className={styles.line} data-hero-fade>
-            {hero.line}
+            {typo(hero.line)}
           </span>
         </h1>
         <a href={`#${sectionIds.request}`} className={`btn ${styles.cta}`} data-hero-fade>

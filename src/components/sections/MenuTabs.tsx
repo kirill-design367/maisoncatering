@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { onDelegatedClick } from '@/lib/bus'
-import { ease, gsap, prefersReducedMotion, type Timeline } from '@/lib/gsap'
+import { ease, gsap, prefersReducedMotion, ScrollTrigger, type Timeline } from '@/lib/gsap'
 import { defer } from '@/lib/schedule'
 
 /**
@@ -47,6 +47,8 @@ export function MenuTabs() {
           panels.forEach((p) => p.toggleAttribute('data-inactive', p.dataset.format !== id))
           ctaLink?.setAttribute('data-request-format', id)
           placeIndicator()
+          // На телефоне высота карты зависит от вкладки — точки привязки к скроллу ниже по странице сдвигаются.
+          if (changed) ScrollTrigger.refresh()
           if (opts.focus) tab.focus({ preventScroll: true })
 
           // На мобильном лента прокручивается так, чтобы активная вкладка была по центру.
@@ -95,18 +97,27 @@ export function MenuTabs() {
           select(tabs[next].dataset.format, { focus: true })
         }
 
+        // Лента вкладок на телефоне: у правого края она растворяется, пока не докручена до конца.
+        const markEnd = () => list.toggleAttribute('data-end', list.scrollLeft >= list.scrollWidth - list.clientWidth - 2)
+        list.addEventListener('scroll', markEnd, { passive: true })
+        markEnd()
+
         list.addEventListener('click', onClick)
         list.addEventListener('keydown', onKey)
         // Ссылки «Свадьба → меню» из других блоков. Переход к блоку делает MotionRoot.
         const off = onDelegatedClick('[data-menu-format]', (el) => select(el.dataset.menuFormat, { animate: true }))
 
-        const observer = new ResizeObserver(placeIndicator)
+        const observer = new ResizeObserver(() => {
+          placeIndicator()
+          markEnd()
+        })
         observer.observe(list)
         document.fonts?.ready.then(placeIndicator)
         placeIndicator()
         root.setAttribute('data-ready', '')
 
         return () => {
+          list.removeEventListener('scroll', markEnd)
           list.removeEventListener('click', onClick)
           list.removeEventListener('keydown', onKey)
           off()

@@ -1,5 +1,6 @@
 import { cta, formats, formatPricePerGuest, menuSection, sectionIds } from '@/data/site'
 import { Lines } from '@/components/ui/Lines'
+import { typo } from '@/lib/typo'
 import { MenuTabs } from './MenuTabs'
 import styles from './menu.module.css'
 
@@ -22,7 +23,7 @@ export function Menu() {
   return (
     <section id={sectionIds.menu} className={`section ${styles.section}`} aria-labelledby="menu-title">
       <div className="wrap">
-        <div className={styles.card} data-menu>
+        <div className={styles.card} data-menu data-scroll-anchor>
           <div className={styles.cardInner}>
             <div className={styles.head}>
               <Lines lines={[menuSection.title]} as="h2" id="menu-title" className={`t-display t-h2 ${styles.title}`} />
@@ -81,7 +82,7 @@ export function Menu() {
                           return (
                             <li key={line} className={styles.dish} data-menu-fade>
                               {dish.course && <span className={`t-label ${styles.course}`}>{dish.course}</span>}
-                              <span className={dish.course ? 't-body' : `t-body ${styles.single}`}>{dish.text}</span>
+                              <span className={styles.dishText}>{typo(dish.text)}</span>
                             </li>
                           )
                         })}
@@ -91,7 +92,7 @@ export function Menu() {
                 </div>
 
                 <div className={styles.foot}>
-                  <p className={`t-lead ${styles.custom}`}>{menuSection.customLine}</p>
+                  <p className={`t-lead ${styles.custom}`}>{typo(menuSection.customLine)}</p>
                   {/* data-request-format всегда равен открытой вкладке: форма подставит этот формат. */}
                   <a href={`#${sectionIds.request}`} className={`btn ${styles.cta}`} data-request-format={formats[0].id} data-menu-cta>
                     {cta.discussMenu}

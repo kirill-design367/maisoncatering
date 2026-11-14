@@ -2,6 +2,7 @@ import { contacts, footer, requestSection, sectionIds } from '@/data/site'
 import { Lines } from '@/components/ui/Lines'
 import { RequestForm } from './RequestForm'
 import styles from './request.module.css'
+import { typo } from '@/lib/typo'
 
 const TITLE_ID = 'request-title'
 
@@ -36,7 +37,7 @@ export function Request() {
           <div className={styles.head}>
             <Lines lines={requestSection.titleLines} as="h2" className="t-display t-h2" id={TITLE_ID} />
             <p className={`t-body t-muted ${styles.intro}`} data-reveal="fade">
-              {requestSection.intro}
+              {typo(requestSection.intro)}
             </p>
           </div>
 

@@ -54,7 +54,8 @@
 
 .top {
   display: flex;
-  align-items: flex-start;
+  /* подпись типа и первая строка фактов стоят на одной линии шрифта */
+  align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
   /* две строки фактов — у всех карточек одинаковая высота шапки */
@@ -77,7 +78,7 @@
   margin-top: 1.75rem;
   /* кавычка-ёлочка вынесена за линию текста: буквы стоят на общей вертикали */
   margin-left: -0.42em;
-  font-size: clamp(1.75rem, 8.2vw, 2.25rem);
+  font-size: clamp(1.5rem, 8.2vw, 2.25rem);
   line-height: 1;
   text-wrap: nowrap;
 }
@@ -103,6 +104,11 @@
 .price {
   font-size: 1.75rem;
   line-height: 1;
+}
+
+/* Кнопка не сжимается, даже когда цена длинная. */
+.bottom > a {
+  flex: none;
 }
 
 /* Фото сета — появится, когда в данных будет заполнено поле photo. */
@@ -139,17 +145,17 @@
 /* ── Десктоп: таблица 3×2 с общими линиями ─────────────────────────────────── */
 
 @media (min-width: 64rem) {
+  /* Шапка блока устроена как у «Форматов»: примечание в 10-й колонке на линии последней строки заголовка. */
   .head {
-    align-items: end;
+    align-items: last baseline;
   }
 
   .title {
-    grid-column: 1 / span 7;
+    grid-column: 1 / span 8;
   }
 
   .note {
-    grid-column: 9 / -1;
-    padding-bottom: 0.5rem;
+    grid-column: 10 / span 3;
   }
 
   .strip {
@@ -162,6 +168,8 @@
   .grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* оба ряда таблицы одной высоты */
+    grid-auto-rows: 1fr;
     gap: 0;
     width: auto;
     border-top: 1px solid var(--color-line);

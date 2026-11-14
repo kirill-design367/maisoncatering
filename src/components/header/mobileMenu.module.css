@@ -68,12 +68,14 @@
   display: block;
 }
 
+/* Прокручивается только область под шапкой: пункты не заезжают под вордмарк и крестик. */
 .inner {
+  position: absolute;
+  inset: var(--header-h) 0 0 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  height: 100%;
-  padding: calc(var(--header-h) + 1.5rem) var(--gutter) max(1.5rem, env(safe-area-inset-bottom));
+  padding: clamp(0.75rem, 2.4svh, 1.5rem) var(--gutter) max(1.25rem, env(safe-area-inset-bottom));
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -93,8 +95,10 @@
 .link {
   display: block;
   overflow: clip;
-  padding-block: 0.6em 0.5em;
-  font-size: clamp(2.25rem, 11.5vw, 3.25rem);
+  /* Кегль и отступы привязаны и к ширине, и к высоте экрана: на невысоком экране
+     (видны панели браузера) меню помещается целиком. */
+  padding-block: clamp(0.34em, 1.9svh, 0.6em) clamp(0.26em, 1.5svh, 0.5em);
+  font-size: clamp(1.875rem, min(11.5vw, 6.2svh), 3.25rem);
   line-height: 1;
 }
 
@@ -105,15 +109,15 @@
 .foot {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
-  padding-top: 2rem;
+  gap: clamp(0.75rem, 2svh, 1.25rem);
+  padding-top: clamp(1rem, 3svh, 2rem);
 }
 
 .phone {
   display: inline-block;
   align-self: flex-start;
   padding-block: 0.375rem;
-  font-size: 1.875rem;
+  font-size: clamp(1.5rem, 4svh, 1.875rem);
   line-height: 1.1;
 }
 

@@ -66,6 +66,9 @@
   --wm-cap-ratio: 0.714;
   /* Сдвиг строки вверх, чтобы верх прописной совпал с верхом маски (при line-height: 1). */
   --wm-shift: -0.174;
+  /* Пустые поля слева у буквы M и справа у N (в em): на них вордмарк выдвигается к полям страницы. */
+  --wm-lsb: 0.047;
+  --wm-rsb: 0.04;
 }
 
 @media (min-width: 64rem) {
@@ -243,6 +246,8 @@ html.lenis body {
   font-size: var(--fs-body);
   font-weight: 300;
   line-height: 1.6;
+  /* браузер сам избегает одинокого слова в последней строке, где умеет */
+  text-wrap: pretty;
 }
 
 .t-small {
@@ -460,9 +465,9 @@ html.lenis body {
 .line {
   display: block;
   overflow: clip;
-  /* запас под выносные элементы (Й, Ё, Щ), чтобы маска их не срезала */
-  padding-block: 0.12em 0.08em;
-  margin-block: -0.12em -0.08em;
+  /* запас под выносные элементы (Й, Ё сверху; Д, Щ, Ц снизу), чтобы маска их не срезала */
+  padding-block: 0.12em 0.16em;
+  margin-block: -0.12em -0.16em;
 }
 .line__inner {
   display: block;

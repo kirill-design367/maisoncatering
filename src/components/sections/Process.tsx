@@ -1,5 +1,6 @@
 import { processSection, sectionIds, steps } from '@/data/site'
 import { Lines } from '@/components/ui/Lines'
+import { typo } from '@/lib/typo'
 import styles from './process.module.css'
 
 /**
@@ -27,7 +28,7 @@ export function Process() {
                 </span>
                 <div className={styles.body} data-reveal="fade">
                   <h3 className={styles.title}>{step.title}</h3>
-                  <p className={`t-body ${styles.text}`}>{step.text}</p>
+                  <p className={`t-body ${styles.text}`}>{typo(step.text)}</p>
                 </div>
               </li>
             ))}

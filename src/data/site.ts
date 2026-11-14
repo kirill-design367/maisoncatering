@@ -330,9 +330,18 @@ export const gallerySection = {
   title: 'Галерея',
 } as const
 
-export const gallery: { image: ImageName; alt: string }[] = [
+export type GalleryItem = {
+  image: ImageName
+  alt: string
+  /** Кадрировка внутри маски: какая точка кадра остаётся в центре («50% 70%») и приближение. Необязательно. */
+  position?: string
+  zoom?: number
+}
+
+export const gallery: GalleryItem[] = [
   { image: 'gallery-1', alt: 'Пирамида из бокалов игристого' },
-  { image: 'gallery-2', alt: 'Сырная тарелка с инжиром, виноградом и мёдом' },
+  // В круге кадр приближен и сдвинут вниз: светлая стена сверху сливалась с фоном страницы и «срезала» круг.
+  { image: 'gallery-2', alt: 'Сырная тарелка с инжиром, виноградом и мёдом', position: '50% 62%', zoom: 1.22 },
   { image: 'gallery-3', alt: 'Официант выносит поднос с закусками' },
   { image: 'gallery-4', alt: 'Этажерка с десертами и макарон' },
   { image: 'gallery-5', alt: 'Сервировка: тарелка с бордовой салфеткой и веткой оливы' },

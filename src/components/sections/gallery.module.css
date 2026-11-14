@@ -49,6 +49,10 @@
 
 .img {
   object-fit: cover;
+  /* кадрировка отдельного фото задаётся в данных (site.ts: position, zoom) */
+  object-position: var(--focus, 50% 50%);
+  transform-origin: var(--focus, 50% 50%);
+  scale: var(--zoom, 1);
   transition: scale 1.1s var(--ease-out-expo);
 }
 
@@ -85,7 +89,7 @@
 
 @media (hover: hover) and (pointer: fine) {
   .mask:hover .img {
-    scale: 1.04;
+    scale: calc(var(--zoom, 1) * 1.04);
   }
 }
 

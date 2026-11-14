@@ -3,6 +3,7 @@ import { Lines } from '@/components/ui/Lines'
 import { Picture } from '@/components/ui/Picture'
 import { FormatsInteractive } from './FormatsInteractive'
 import styles from './formats.module.css'
+import { typo } from '@/lib/typo'
 
 // Кадр у курсора — около 22rem в ширину; на мобильном этот набор кадров не показывается и не грузится.
 const PREVIEW_SIZES = '(min-width: 64rem) 22vw, 1px'
@@ -28,7 +29,7 @@ export function Formats() {
         <div className={`grid-12 ${styles.head}`}>
           <Lines lines={formatsSection.titleLines} as="h2" id="formats-title" className={`t-display t-h2 ${styles.title}`} />
           <p className={`t-body t-muted ${styles.note}`} data-reveal="fade">
-            {formatsSection.note}
+            {typo(formatsSection.note)}
           </p>
         </div>
 

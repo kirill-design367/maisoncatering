@@ -17,6 +17,8 @@ export function MobileMenu() {
   const layerRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const timeline = useRef<Timeline | null>(null)
+  const themeBefore = useRef<string | null>(null)
+  const wasOpen = useRef(false)
 
   // Анимация открытия собирается один раз; закрытие — та же анимация в обратную сторону.
   useEffect(
@@ -62,20 +64,38 @@ export function MobileMenu() {
     const main = document.getElementById('main')
     const bar = document.querySelector<HTMLElement>('[data-mobile-bar]')
 
+    const header = layer.closest<HTMLElement>('[data-header]')
+
     if (open) {
       lockScroll(true)
       layer.removeAttribute('inert')
       main?.setAttribute('inert', '')
       bar?.setAttribute('inert', '')
       layer.dataset.open = 'true'
+      // Меню всегда молочное. Если оно открыто над бордовым экраном заявки, шапка на это время
+      // тоже становится молочной — иначе пункты и вордмарк были бы молочными на молочном.
+      if (header) {
+        themeBefore.current = header.getAttribute('data-theme')
+        header.removeAttribute('data-theme')
+        header.setAttribute('data-menu-open', '')
+      }
       if (tl) tl.timeScale(1).play()
       // Фокус — на первый пункт, чтобы клавиатура и скринридер оказались внутри меню.
       layer.querySelector<HTMLElement>('a')?.focus({ preventScroll: true })
     } else {
       lockScroll(false)
       layer.setAttribute('inert', '')
+      // При первом показе страницы трогать нечего: меню ещё не открывали.
+      if (!wasOpen.current) return
       main?.removeAttribute('inert')
-      bar?.removeAttribute('inert')
+      // Закреплённая кнопка заявки остаётся недоступной, если она сейчас спрятана.
+      bar?.toggleAttribute('inert', !bar.hasAttribute('data-visible'))
+      if (header) {
+        header.removeAttribute('data-menu-open')
+        // Вернуть бордовую шапку, если меню закрыли на экране заявки (при переходе к другому блоку
+        // цвет поправит HeaderState, когда страница доедет).
+        if (themeBefore.current) header.setAttribute('data-theme', themeBefore.current)
+      }
       if (tl && tl.progress() > 0) {
         tl.timeScale(1.8).reverse()
         tl.eventCallback('onReverseComplete', () => {
@@ -85,6 +105,7 @@ export function MobileMenu() {
         delete layer.dataset.open
       }
     }
+    wasOpen.current = open
   }, [open])
 
   // Esc закрывает меню; при переходе на десктопную ширину меню закрывается само.

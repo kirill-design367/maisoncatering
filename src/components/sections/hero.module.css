@@ -7,12 +7,21 @@
   /* Кегль вордмарка и высота прописной зависят от гарнитуры — см. «Метрики антиквы» в globals.css. */
   --wm-size: calc((100vw - 2 * var(--gutter)) * var(--wm-fit, 0.25));
   --wm-cap: calc(var(--wm-size) * var(--wm-cap-ratio, 0.7));
-  --wm-top: calc(var(--header-h) + clamp(1.25rem, 4.5svh, 3rem));
-  /* Высота блока с подписями и кнопкой под тарелкой. */
-  --text-h: 13.5rem;
-  /* Тарелка заходит на буквы снизу. */
-  --plate-top: calc(var(--wm-top) + var(--wm-cap) * 0.88);
-  --plate-d: min(86vw, calc(100svh - var(--plate-top) - var(--text-h)));
+
+  /* Мобильная раскладка сверху вниз: вордмарк, тарелка (заходит на буквы снизу), подписи и кнопка у низа.
+     Тарелка занимает всё, что остаётся по высоте; лишняя высота делится между отступом над вордмарком
+     и зазором под тарелкой, поэтому на высоком экране композиция не прижата к верху. */
+  --base-top: calc(var(--header-h) + 1.25rem);
+  /* На сколько высот прописной тарелка опущена от верха букв. */
+  --overlap: 0.8;
+  /* Высота блока с подписями и кнопкой вместе с отступом от низа экрана. */
+  --text-h: 13.75rem;
+  --gap: 1.5rem;
+  --free: calc(100svh - var(--base-top) - var(--wm-cap) * var(--overlap) - var(--gap) - var(--text-h));
+  --plate-d: min(96vw, var(--free));
+  --slack: max(0px, var(--free) - var(--plate-d));
+  --wm-top: calc(var(--base-top) + var(--slack) * 0.6);
+  --plate-top: calc(var(--wm-top) + var(--wm-cap) * var(--overlap));
 
   position: relative;
   z-index: 0;
@@ -75,14 +84,23 @@
   will-change: transform;
 }
 
+/* У букв есть собственные поля. Крайние буквы выдвинуты на их величину,
+   чтобы штрихи M и N вставали точно на поля страницы, как шапка и кнопка. */
+.letterMask:first-child .letter {
+  margin-left: calc(var(--wm-lsb, 0) * -1em);
+}
+.letterMask:last-child .letter {
+  margin-right: calc(var(--wm-rsb, 0) * -1em);
+}
+
 .suffix {
   position: absolute;
   z-index: 1;
-  top: calc(var(--wm-top) + var(--wm-cap) + 0.625rem);
+  top: calc(var(--wm-top) + var(--wm-cap) + 0.375rem);
   left: var(--gutter);
   color: var(--color-bordo);
   font-size: 0.6875rem;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.16em;
 }
 
 @media (min-width: 64rem) {
@@ -161,7 +179,7 @@
   z-index: 3;
   left: var(--gutter);
   right: var(--gutter);
-  top: calc(var(--plate-top) + var(--plate-d) + 1.75rem);
+  bottom: clamp(1.25rem, 3svh, 2.25rem);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -195,7 +213,6 @@
 
 @media (min-width: 64rem) {
   .text {
-    top: auto;
     bottom: clamp(2rem, 5svh, 4rem);
   }
 

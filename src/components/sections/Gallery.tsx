@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { gallery, gallerySection, sectionIds } from '@/data/site'
 import { Lines } from '@/components/ui/Lines'
 import { Picture } from '@/components/ui/Picture'
@@ -47,7 +48,11 @@ export function Gallery() {
                 data-gallery-frame
                 data-shift={frame.shift}
               >
-                <div className={`${styles.mask} ${styles[frame.shape]}`} data-reveal="mask">
+                <div
+                  className={`${styles.mask} ${styles[frame.shape]}`}
+                  data-reveal="mask"
+                  style={{ '--focus': frame.position, '--zoom': frame.zoom } as CSSProperties}
+                >
                   <Picture name={frame.image} alt={frame.alt} sizes={frame.sizes} className={styles.picture} imgClassName={styles.img} />
                 </div>
               </figure>

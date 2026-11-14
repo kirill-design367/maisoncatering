@@ -147,6 +147,11 @@ function setup() {
   }
   document.addEventListener('click', onClick)
 
+  // Страница открыта сразу по ссылке с якорем (…/#request): встать на блок по тем же правилам,
+  // что и при клике, — браузер сам этого не умеет (экран заявки должен встать вплотную к верху).
+  const initial = decodeURIComponent(location.hash.slice(1))
+  if (initial && document.getElementById(initial)) goToSection(initial, { immediate: true, focus: false })
+
   // ScrollTrigger сам пересчитывает позиции при событии load. Если шрифты догрузились позже
   // (высота заголовков могла измениться) — пересчитать ещё раз.
   let disposed = false

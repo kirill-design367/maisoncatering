@@ -452,7 +452,9 @@ function initAccordion(root: HTMLElement, motion: boolean): () => void {
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
     const header = document.querySelector<HTMLElement>('[data-header]')?.offsetHeight ?? 0
     const rect = item.toggle.getBoundingClientRect()
-    const overflow = rect.bottom + panelHeight - (window.innerHeight - rem)
+    // Низ окна занят закреплённой кнопкой заявки: ссылка «Смотреть меню» должна встать над ней.
+    const bar = document.querySelector<HTMLElement>('[data-mobile-bar][data-visible]')?.offsetHeight ?? 0
+    const overflow = rect.bottom + panelHeight - (window.innerHeight - bar - rem)
     const room = rect.top - (header + 0.5 * rem)
     return Math.max(0, Math.min(overflow, room))
   }
