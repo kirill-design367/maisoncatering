@@ -1,0 +1,294 @@
+/* 4. Меню — печатная карта ресторана. */
+
+.section {
+  z-index: 1;
+}
+
+/* ── Мобильная композиция: заголовок, лента вкладок, под ней карта в одну колонку ── */
+
+.title {
+  text-align: left;
+}
+
+/* Лента вкладок выходит за поля до краёв экрана и прокручивается пальцем. */
+.tabsRow {
+  margin-top: 1.5rem;
+  margin-inline: calc(var(--gutter) * -1);
+  border-bottom: 1px solid var(--color-line);
+}
+
+.tabs {
+  position: relative;
+  display: flex;
+  /* шаг подобран так, чтобы на телефоне последняя вкладка была видна краем: понятно, что лента листается */
+  gap: 1.25rem;
+  padding-inline: var(--gutter);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  /* у правого края лента растворяется, пока не докручена до конца
+     (#000 здесь — не цвет интерфейса, а непрозрачная часть маски) */
+  mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+}
+
+.tabs[data-end] {
+  mask-image: none;
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  flex: none;
+  min-height: 3rem;
+  padding-inline: 0;
+  background: none;
+  border: 0;
+  color: var(--color-ink-2);
+  transition: color 0.5s var(--ease-out-expo);
+}
+
+.tab[aria-selected='true'] {
+  color: var(--color-bordo);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tab:hover {
+    color: var(--color-bordo);
+  }
+}
+
+/* Линия под активной вкладкой: одна на всю ленту, скользит трансформацией. */
+.indicator {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  background: var(--color-bordo);
+  transform: translateX(var(--x, 0px)) scaleX(var(--w, 0));
+  transform-origin: left center;
+}
+
+.card[data-ready] .indicator {
+  transition: transform 0.6s var(--ease-in-out);
+}
+
+/* Режим высокой контрастности: линия нарисована фоном, а фон в этом режиме заменяется. */
+@media (forced-colors: active) {
+  .indicator {
+    background: CanvasText;
+  }
+
+  .tab[aria-selected='true'] {
+    text-decoration: underline;
+  }
+}
+
+/* Двойная рамка карты: на мобильном она обнимает только саму карту под лентой. */
+.body {
+  margin-top: 1.75rem;
+  padding: 0.375rem;
+  border: 1px solid var(--color-line);
+}
+
+.bodyInner {
+  padding: 1.75rem 1.25rem 1.5rem;
+  border: 1px solid var(--color-line);
+}
+
+/* Без JavaScript панели идут одна за другой. С JavaScript они лежат в одной ячейке:
+   высота карты равна самой высокой вкладке и не прыгает при переключении. */
+.panel + .panel {
+  margin-top: 3rem;
+}
+
+:global(.js) .panel {
+  margin-top: 0;
+}
+
+/* На телефоне высота карты равна открытой вкладке: в коротких меню нет пустоты. */
+:global(.js) .panel[data-inactive] {
+  display: none;
+}
+
+.name {
+  font-size: clamp(2.25rem, 10.5vw, 3rem);
+  line-height: 1;
+}
+
+.nameMask {
+  display: block;
+  overflow: clip;
+  padding-block: 0.12em 0.08em;
+  margin-block: -0.12em -0.08em;
+}
+
+.nameInner {
+  display: block;
+}
+
+.price {
+  margin-top: 0.75rem;
+  color: var(--color-ink);
+}
+
+.dishes {
+  margin-top: 1.75rem;
+}
+
+.dish {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--color-line-soft);
+}
+
+.course {
+  color: var(--color-bordo);
+}
+
+/* Все блюда набраны одним кеглем — и с названием подачи, и без него. */
+.dishText {
+  font-size: var(--fs-body);
+  font-weight: 300;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 0.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.custom {
+  text-wrap: balance;
+}
+
+.cta {
+  width: 100%;
+}
+
+/* ── Десктоп: карта по центру, всё внутри двойной рамки ─────────────────────── */
+
+@media (min-width: 64rem) {
+  .card {
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 0.5rem;
+    border: 1px solid var(--color-line);
+  }
+
+  .cardInner {
+    padding: 4rem 5rem 3.25rem;
+    border: 1px solid var(--color-line);
+  }
+
+  .title {
+    text-align: center;
+  }
+
+  .tabsRow {
+    margin-top: 2.5rem;
+    margin-inline: 0;
+  }
+
+  .tabs,
+  .tabs[data-end] {
+    justify-content: center;
+    gap: clamp(2rem, 3.2vw, 4.5rem);
+    padding-inline: 0;
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .tab {
+    min-height: 3.5rem;
+  }
+
+  .body,
+  .bodyInner {
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .panels {
+    margin-top: 3.5rem;
+  }
+
+  /* На десктопе все панели лежат в одной ячейке: высота карты равна самой высокой вкладке
+     и не прыгает при переключении. */
+  :global(.js) .panels {
+    display: grid;
+  }
+
+  :global(.js) .panel {
+    grid-area: 1 / 1;
+  }
+
+  :global(.js) .panel[data-inactive] {
+    display: grid;
+    visibility: hidden;
+  }
+
+  /* Слева — название формата и цена, справа — блюда; между ними тонкая линия во всю высоту карты. */
+  .panel {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 6fr);
+    align-items: stretch;
+  }
+
+  .panelHead {
+    padding-right: 3rem;
+  }
+
+  .name {
+    font-size: clamp(2.5rem, 3.6vw, 5.75rem);
+  }
+
+  .price {
+    margin-top: 1.25rem;
+  }
+
+  .dishes {
+    margin-top: 0;
+    padding-left: 4rem;
+    border-left: 1px solid var(--color-line);
+  }
+
+  .dish {
+    padding-block: 1.125rem;
+  }
+
+  .dishText {
+    font-size: max(1.125rem, 17px);
+  }
+
+  .dish:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .dish:last-child {
+    padding-bottom: 0;
+  }
+
+  .foot {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-top: 3.5rem;
+    padding-top: 2rem;
+  }
+
+  .cta {
+    width: auto;
+  }
+}

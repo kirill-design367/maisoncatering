@@ -1,0 +1,248 @@
+/* 1. Первый экран.
+   Геометрия считается от трёх чисел: кегль вордмарка, его верх и диаметр тарелки.
+   Вордмарк привязан к ширине окна (буквы распределены от поля до поля),
+   тарелка — к высоте: она всегда оставляет место под подписи и кнопку. */
+
+.hero {
+  /* Кегль вордмарка и высота прописной зависят от гарнитуры — см. «Метрики антиквы» в globals.css. */
+  --wm-size: calc((100vw - 2 * var(--gutter)) * var(--wm-fit, 0.25));
+  --wm-cap: calc(var(--wm-size) * var(--wm-cap-ratio, 0.7));
+
+  /* Мобильная раскладка сверху вниз: вордмарк, тарелка (заходит на буквы снизу), подписи и кнопка у низа.
+     Тарелка занимает всё, что остаётся по высоте; лишняя высота делится между отступом над вордмарком
+     и зазором под тарелкой, поэтому на высоком экране композиция не прижата к верху. */
+  --base-top: calc(var(--header-h) + 1.25rem);
+  /* На сколько высот прописной тарелка опущена от верха букв. */
+  --overlap: 0.8;
+  /* Высота блока с подписями и кнопкой вместе с отступом от низа экрана. */
+  --text-h: 13.75rem;
+  --gap: 1.5rem;
+  /* Высота первого экрана: окно, но не меньше, чем нужно всей композиции с тарелкой от 11rem.
+     На низком окне (телефон боком, сильное увеличение) блок становится выше окна, а не теряет тарелку. */
+  --min-h: calc(var(--base-top) + var(--wm-cap) * var(--overlap) + 11rem + var(--gap) + var(--text-h));
+  --vh: max(100svh, var(--min-h));
+  --free: calc(var(--vh) - var(--base-top) - var(--wm-cap) * var(--overlap) - var(--gap) - var(--text-h));
+  --plate-d: min(96vw, var(--free));
+  --slack: max(0px, var(--free) - var(--plate-d));
+  --wm-top: calc(var(--base-top) + var(--slack) * 0.6);
+  --plate-top: calc(var(--wm-top) + var(--wm-cap) * var(--overlap));
+
+  position: relative;
+  z-index: 0;
+  height: var(--vh);
+  background: var(--color-milk);
+  /* Тень тарелки шире экрана на мобильном: по горизонтали обрезаем, по вертикали — нет
+     (тарелка при прокрутке уходит вниз, под следующий блок). */
+  overflow-x: clip;
+}
+
+@media (min-width: 64rem) {
+  .hero {
+    --wm-top: calc(var(--header-h) + 2.5svh);
+    --text-h: 15rem;
+    /* Тарелка перекрывает нижнюю половину букв. */
+    --plate-top: calc(var(--wm-top) + var(--wm-cap) * 0.44);
+    /* Тарелка не меньше 14rem: на низком окне блок становится выше окна. */
+    --min-h: calc(var(--plate-top) + 14rem + var(--text-h));
+    --plate-d: min(40vw, calc(var(--vh) - var(--plate-top) - var(--text-h)));
+  }
+}
+
+/* ── Вордмарк ──────────────────────────────────────────────────────────────── */
+
+.wordmark {
+  position: absolute;
+  z-index: 1;
+  top: var(--wm-top);
+  left: var(--gutter);
+  right: var(--gutter);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: var(--wm-cap);
+  /* Вордмарк набран самым тонким начертанием семейства (см. src/lib/fonts.ts). */
+  font-family: var(--font-wordmark-face), var(--font-display);
+  font-weight: var(--wm-weight, var(--display-weight));
+  font-size: var(--wm-size);
+  line-height: 1;
+  color: var(--color-bordo);
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* Маска буквы: высота — ровно высота прописной, буква выезжает снизу. */
+.letterMask {
+  display: block;
+  height: var(--wm-cap);
+  /* запас со всех сторон, чтобы маска не срезала засечки и овалы S и O */
+  padding: 0.04em 0.02em;
+  margin: -0.04em -0.02em;
+  box-sizing: content-box;
+  overflow: clip;
+}
+
+.letter {
+  display: block;
+  /* поднимаем строку так, чтобы верх прописной совпал с верхом маски */
+  margin-top: calc(var(--wm-size) * var(--wm-shift, -0.14));
+  will-change: transform;
+}
+
+/* У букв есть собственные поля. Крайние буквы выдвинуты на их величину,
+   чтобы штрихи M и N вставали точно на поля страницы, как шапка и кнопка. */
+.letterMask:first-child .letter {
+  margin-left: calc(var(--wm-lsb, 0) * -1em);
+}
+.letterMask:last-child .letter {
+  margin-right: calc(var(--wm-rsb, 0) * -1em);
+}
+
+.suffix {
+  position: absolute;
+  z-index: 1;
+  top: calc(var(--wm-top) + var(--wm-cap) + 0.375rem);
+  left: var(--gutter);
+  color: var(--color-bordo);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+}
+
+@media (min-width: 64rem) {
+  .suffix {
+    left: auto;
+    right: var(--gutter);
+    top: calc(var(--wm-top) + var(--wm-cap) + 1.25rem);
+    font-size: var(--fs-label);
+    letter-spacing: 0.3em;
+  }
+}
+
+/* ── Тарелка ───────────────────────────────────────────────────────────────── */
+
+.plate {
+  position: absolute;
+  z-index: 2;
+  top: var(--plate-top);
+  left: 50%;
+  width: var(--plate-d);
+  height: var(--plate-d);
+  margin-left: calc(var(--plate-d) / -2);
+  border-radius: 50%;
+  will-change: transform;
+}
+
+/* Тень под тарелкой — средствами CSS, без размытия: два радиальных градиента.
+   Свет слева сверху, как на кадре, поэтому тень смещена вправо вниз.
+   Тень лежит на неподвижной обёртке: тарелка вращается, тень — нет. */
+.plate::before,
+.plate::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  pointer-events: none;
+}
+/* Мягкая дальняя тень. */
+.plate::before {
+  inset: -16%;
+  transform: translate(4.5%, 8.5%);
+  background: radial-gradient(
+    closest-side,
+    rgb(36 28 28 / 0.34) 0%,
+    rgb(36 28 28 / 0.3) 62%,
+    rgb(36 28 28 / 0.17) 74%,
+    rgb(36 28 28 / 0.07) 86%,
+    rgb(36 28 28 / 0.02) 94%,
+    transparent 100%
+  );
+}
+/* Плотная тень у самого края. */
+.plate::after {
+  inset: -2.2%;
+  transform: translate(0.9%, 1.5%);
+  background: radial-gradient(closest-side, rgb(36 28 28 / 0.38) 93%, rgb(36 28 28 / 0.16) 97%, transparent 100%);
+}
+
+.plateSpin,
+.plateIntro {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.plateImg {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ── Подписи и кнопка ──────────────────────────────────────────────────────── */
+
+.text {
+  position: absolute;
+  z-index: 3;
+  left: var(--gutter);
+  right: var(--gutter);
+  bottom: clamp(1.25rem, 3svh, 2.25rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.eyebrow {
+  display: block;
+  color: var(--color-bordo);
+}
+
+.line {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 1.375rem;
+  font-weight: 300;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.cta {
+  margin-top: 1.5rem;
+  width: 100%;
+}
+
+@media (min-width: 64rem) {
+  .text {
+    bottom: clamp(2rem, 5svh, 4rem);
+  }
+
+  .line {
+    margin-top: 1rem;
+    max-width: none;
+    font-size: max(1.625rem, 22px);
+  }
+
+  .cta {
+    margin-top: 1.75rem;
+    width: auto;
+  }
+}
+
+/* ── Исходные состояния входа ──────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(.js) .letter {
+    transform: translateY(112%);
+  }
+  :global(.js) .plateIntro {
+    transform: rotate(-32deg) scale(0.9);
+  }
+  :global(.js) .hero [data-hero-fade] {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}

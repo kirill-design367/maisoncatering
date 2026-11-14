@@ -1,0 +1,24 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# misc
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+
+# скиллы ставятся в сессии, в репозиторий не коммитятся (см. CLAUDE.md)
+/.claude/skills/
+/.agents/
+/.taste-skill/
+
+# локальные отчёты проверок
+/.lighthouse/
+/shots/
+
+# временные страницы предпросмотра блоков (только для разработки)
+/src/app/dev/

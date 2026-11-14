@@ -1,0 +1,227 @@
+/* 5. Сеты и боксы. */
+
+.section {
+  z-index: 1;
+}
+
+.head {
+  row-gap: 1.25rem;
+}
+
+.title,
+.note {
+  grid-column: 1 / -1;
+}
+
+.note {
+  max-width: 22rem;
+}
+
+/* ── Мобильная композиция: лента с прокруткой пальцем ───────────────────────── */
+
+/* Лента выходит за поля до краёв экрана; следующая карточка видна краем. */
+.strip {
+  margin-top: 2.5rem;
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+}
+.strip::-webkit-scrollbar {
+  display: none;
+}
+
+.grid {
+  display: flex;
+  gap: 0.75rem;
+  width: max-content;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 78vw;
+  max-width: 22rem;
+  min-height: 25rem;
+  padding: 1.5rem 1.25rem 1.25rem;
+  border: 1px solid var(--color-line);
+  scroll-snap-align: start;
+}
+
+.top {
+  display: flex;
+  /* подпись типа и первая строка фактов стоят на одной линии шрифта */
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  /* две строки фактов — у всех карточек одинаковая высота шапки */
+  min-height: 2.75rem;
+}
+
+.kind {
+  color: var(--color-bordo);
+}
+
+.facts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  color: var(--color-ink-2);
+}
+
+.name {
+  margin-top: 1.75rem;
+  /* кавычка-ёлочка вынесена за линию текста: буквы стоят на общей вертикали */
+  margin-left: -0.42em;
+  font-size: clamp(1.5rem, 8.2vw, 2.25rem);
+  line-height: 1;
+  text-wrap: nowrap;
+}
+
+.composition {
+  margin-top: 1.25rem;
+  color: var(--color-ink-2);
+}
+
+.composition li + li {
+  margin-top: 0.125rem;
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 2rem;
+}
+
+.price {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+/* Кнопка не сжимается, даже когда цена длинная. */
+.bottom > a {
+  flex: none;
+}
+
+/* Фото сета — появится, когда в данных будет заполнено поле photo. */
+.photo {
+  margin: -1.5rem -1.25rem 1.5rem;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.picture {
+  width: 100%;
+  height: 100%;
+}
+
+.img {
+  object-fit: cover;
+}
+
+/* Линия прогресса под лентой. */
+.progress {
+  margin-top: 1.5rem;
+  height: 1px;
+  background: var(--color-line-soft);
+}
+
+.progressBar {
+  display: block;
+  height: 1px;
+  background: var(--color-bordo);
+  transform: scaleX(0.3);
+  transform-origin: left center;
+}
+
+/* ── Десктоп: таблица 3×2 с общими линиями ─────────────────────────────────── */
+
+@media (min-width: 64rem) {
+  /* Шапка блока устроена как у «Форматов»: примечание в 10-й колонке на линии последней строки заголовка. */
+  .head {
+    align-items: last baseline;
+  }
+
+  .title {
+    grid-column: 1 / span 8;
+  }
+
+  .note {
+    grid-column: 10 / span 3;
+  }
+
+  .strip {
+    margin-top: clamp(3rem, 5vw, 6rem);
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* оба ряда таблицы одной высоты */
+    grid-auto-rows: 1fr;
+    gap: 0;
+    width: auto;
+    border-top: 1px solid var(--color-line);
+    border-left: 1px solid var(--color-line);
+  }
+
+  .card {
+    width: auto;
+    max-width: none;
+    min-height: 27rem;
+    padding: 2.25rem 2.25rem 2rem;
+    border: 0;
+    border-right: 1px solid var(--color-line);
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  /* Отклик на курсор: по верхнему краю карточки прочерчивается бордовая линия. */
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: -1px -1px auto -1px;
+    height: 1px;
+    background: var(--color-bordo);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 0.8s var(--ease-out-expo);
+  }
+
+  .name {
+    margin-top: 2.5rem;
+    font-size: clamp(1.875rem, 2.7vw, 4.25rem);
+  }
+
+  .composition {
+    margin-top: 1.5rem;
+  }
+
+  .price {
+    font-size: clamp(1.75rem, 2vw, 3.25rem);
+  }
+
+  .photo {
+    margin: -2.25rem -2.25rem 2rem;
+  }
+
+  .progress {
+    display: none;
+  }
+}
+
+@media (min-width: 64rem) and (hover: hover) and (pointer: fine) {
+  .card:hover::before {
+    transform: scaleX(1);
+  }
+}
