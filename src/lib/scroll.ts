@@ -37,16 +37,17 @@ export function scrollToTarget(target: HTMLElement, opts: { immediate?: boolean 
   const flush = target.hasAttribute('data-scroll-flush')
   const offset = flush ? 0 : -headerOffset() + 1
   const immediate = opts.immediate || prefersReducedMotion()
+  // Позиция считается здесь и передаётся числом: по элементу Lenis сам добавляет
+  // scroll-padding-top страницы, и отступ под шапку получился бы двойным.
+  const top = Math.max(0, Math.round(target.getBoundingClientRect().top + window.scrollY + offset))
   if (lenis) {
-    lenis.scrollTo(target, {
-      offset,
+    lenis.scrollTo(top, {
       immediate,
       duration: 1.5,
       easing: (t) => 1 - Math.pow(1 - t, 4),
       force: true,
     })
   } else {
-    const top = target.getBoundingClientRect().top + window.scrollY + offset
     window.scrollTo({ top, behavior: immediate ? 'auto' : 'smooth' })
   }
 }
