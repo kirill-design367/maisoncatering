@@ -1,0 +1,426 @@
+/* 8. Заявка и контакты.
+   Единственный цветной экран сайта: бордовый фон, молочный текст.
+   Блок занимает всё окно: заголовок и форма вверху, контакты и строка подвала прижаты к низу.
+   Сначала мобильная композиция (одна колонка), десктоп — в @media (min-width: 64rem). */
+
+.request {
+  /* Подсказки в пустых полях: молочный с прозрачностью — пара к --color-ink-3 для бордового фона
+     (контраст с фоном 4.6:1). Набранный текст — чистый молочный, подписи полей — --color-milk-2. */
+  --hint: rgb(250 247 242 / 0.56);
+  /* Расстояние между полями формы. */
+  --field-gap: 2rem;
+
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  /* К блоку прокрутка подходит вплотную (data-scroll-flush), шапка лежит поверх —
+     на мобильном отступ считаем от неё, чтобы заголовок не прижимался к шапке. */
+  padding-top: max(var(--section), calc(var(--header-h) + 3.5rem));
+  padding-bottom: 1.5rem;
+  background: var(--color-bordo);
+  color: var(--color-milk);
+}
+
+/* Общее выделение сайта — бордо по молочному; на бордовом фоне его не было бы видно. */
+.request ::selection {
+  background: var(--color-milk);
+  color: var(--color-bordo);
+}
+
+.inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.grid {
+  flex: 1;
+}
+
+.head,
+.form,
+.contacts {
+  grid-column: 1 / -1;
+}
+
+.intro {
+  max-width: 24rem;
+  margin-top: 1.5rem;
+}
+
+/* ── Форма ─────────────────────────────────────────────────────────────────── */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--field-gap);
+  margin-top: 3.5rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--field-gap) 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.label {
+  margin-bottom: 0.5rem;
+  color: var(--color-milk-2);
+}
+
+/* Обёртка поля несёт линию фокуса: сплошная молочная линия прочерчивается слева направо
+   поверх тонкой — тем же жестом, что и линии на всём сайте. */
+.control {
+  position: relative;
+}
+.control::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: var(--color-milk);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.4s var(--ease-out-expo);
+  pointer-events: none;
+}
+.control:focus-within::after {
+  transform: scaleX(1);
+}
+
+/* Поле «печатной карточки»: без коробки, только линия снизу. Кольцо фокуса — общее (globals.css). */
+.input {
+  display: block;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.75rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--color-milk-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-milk);
+  font-family: var(--font-text);
+  /* не меньше 16px: иначе iOS увеличивает страницу при фокусе */
+  font-size: 1.125rem;
+  font-weight: 300;
+  line-height: 1.5;
+  appearance: none;
+  transition: border-color 0.4s var(--ease-soft);
+}
+
+.input::placeholder {
+  color: var(--hint);
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .input:hover {
+    border-bottom-color: var(--color-milk-2);
+  }
+}
+
+/* Автозаполнение браузера красит поле в свой цвет. Откладываем эту перекраску «навсегда»
+   и закрепляем молочный текст — поле остаётся частью бордового экрана. */
+.input:autofill,
+.input:-webkit-autofill {
+  -webkit-text-fill-color: var(--color-milk);
+  caret-color: var(--color-milk);
+  transition:
+    background-color 0s 600000s,
+    color 0s 600000s;
+}
+
+.textarea {
+  /* три строки текста + поля сверху и снизу */
+  min-height: calc(4.5em + 1.5rem);
+  resize: none;
+}
+
+/* Список: системная стрелка убрана, своя нарисована двумя сторонами квадрата. */
+.select {
+  padding-right: 2rem;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.selectControl::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-75%) rotate(45deg);
+  pointer-events: none;
+}
+/* Пункты выпадающего списка рисует система — задаём им читаемые цвета явно. */
+.select option {
+  background: var(--color-milk);
+  color: var(--color-ink);
+}
+
+/* Пока ничего не выбрано, список и дата набраны цветом подсказки. */
+.select[data-empty],
+.date[data-empty] {
+  color: var(--hint);
+}
+
+.date {
+  /* тёмная схема — чтобы системный значок календаря был светлым */
+  color-scheme: dark;
+}
+/* iOS центрирует дату в поле — возвращаем к левому краю, как у остальных полей. */
+.date::-webkit-date-and-time-value {
+  text-align: left;
+}
+.date::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+/* Число гостей вводят с клавиатуры: системные стрелки-счётчик в поле не нужны. */
+.number {
+  appearance: textfield;
+}
+.number::-webkit-inner-spin-button,
+.number::-webkit-outer-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+/* Поле, появляющееся по ходу заполнения (сет, готовый текст): короткое проявление со сдвигом.
+   Высоту не анимируем — блок один раз раздвигается, поле проявляется на своём месте. */
+@media (prefers-reduced-motion: no-preference) {
+  .appear {
+    animation: field-in 0.4s var(--ease-out-expo) both;
+  }
+}
+@keyframes field-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+
+/* ── Кнопки, строка состояния, пояснение ───────────────────────────────────── */
+
+.actions {
+  margin-top: 0.5rem;
+}
+
+.buttons {
+  display: grid;
+  gap: 0.75rem;
+}
+
+/* Высота строки зарезервирована: подсказка появляется, не сдвигая текст под собой. */
+.status {
+  min-height: 1.5em;
+  margin-top: 1.25rem;
+}
+
+.privacy {
+  margin-top: 0.25rem;
+}
+
+/* Готовый текст заявки — на случай, если буфер обмена недоступен. */
+.manual {
+  margin-block: 1rem 1.25rem;
+}
+.manualText {
+  display: block;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--color-milk-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-milk);
+  font-family: var(--font-text);
+  font-size: max(1rem, 16px);
+  font-weight: 300;
+  line-height: 1.5;
+  resize: none;
+  appearance: none;
+}
+
+/* ── Контакты ──────────────────────────────────────────────────────────────── */
+
+.contacts {
+  margin-top: 4.5rem;
+}
+
+.address {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-style: normal;
+}
+
+/* Телефон — антиквой, крупно. Высота строки — под палец. */
+.address .phone {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  padding-block: 0;
+  font-size: clamp(1.75rem, 9.2vw, 2.5rem);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.meta {
+  margin-top: 0.5rem;
+}
+
+.messengerLinks {
+  display: none;
+}
+
+.city {
+  color: var(--color-milk-2);
+}
+
+.messengerButtons {
+  display: grid;
+  gap: 0.75rem;
+  align-self: stretch;
+  margin-top: 2rem;
+}
+
+/* ── Подвал ────────────────────────────────────────────────────────────────── */
+
+.footer {
+  margin-top: 4rem;
+}
+
+.footerRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding-top: 1.25rem;
+}
+
+.footerRow .footerPhone {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  padding-block: 0;
+}
+
+/* ── Планшет: короткие поля парами, кнопки в строку ────────────────────────── */
+
+@media (min-width: 40rem) {
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+/* ── Десктоп ───────────────────────────────────────────────────────────────── */
+
+@media (min-width: 64rem) {
+  .request {
+    --field-gap: 2.5rem;
+    padding-top: var(--section);
+    padding-bottom: 2rem;
+  }
+
+  /* Две строки сетки: заголовок сверху, контакты прижаты к низу; форма занимает обе. */
+  .grid {
+    grid-template-rows: auto 1fr;
+  }
+
+  .head {
+    grid-column: 1 / span 5;
+    grid-row: 1;
+  }
+
+  .intro {
+    margin-top: 2.5rem;
+  }
+
+  .form {
+    grid-column: 7 / span 6;
+    grid-row: 1 / span 2;
+    margin-top: 0;
+  }
+
+  .input {
+    font-size: 1.25rem;
+  }
+
+  .actions {
+    margin-top: 1rem;
+  }
+
+  .privacy {
+    max-width: 30rem;
+  }
+
+  .contacts {
+    grid-column: 1 / span 5;
+    grid-row: 2;
+    align-self: end;
+    /* ширина — по телефону: строка под ним выравнивается по его краям */
+    justify-self: start;
+    margin-top: 5rem;
+  }
+
+  .address {
+    align-items: stretch;
+  }
+
+  .address .phone {
+    align-self: flex-start;
+    min-height: 0;
+    padding-block: 0.25rem;
+    font-size: var(--fs-h3);
+  }
+
+  .meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .messengerLinks {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .messengerButtons {
+    display: none;
+  }
+
+  .footer {
+    margin-top: 4.5rem;
+  }
+
+  .footerRow {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 2rem;
+    padding-top: 1.25rem;
+  }
+
+  .footerRow .footerPhone {
+    display: inline-block;
+    min-height: 0;
+    padding-block: 0.25rem;
+  }
+}
