@@ -174,30 +174,34 @@ function setup() {
   document.addEventListener('click', onClick)
 
   // 4. Нажатие на кнопку пальцем: короткий «глоток» заливки (стили — .btn[data-pressed] в globals.css).
-  // Метка держится четверть секунды: отклик виден и при самом быстром касании.
+  // Метка держится треть секунды: отклик виден и при самом быстром касании.
   // Обработчик касания нужен и сам по себе: без него Safari на iPhone не включает :active.
-  const pressed = new Map<Element, number>()
+  const PRESS_MS = 340
+  /** Палец сдвинулся дальше — это прокрутка, а не нажатие. */
+  const PRESS_SLOP = 6
+  const pressed = new Map<Element, { timer: number; x: number; y: number }>()
   const release = (btn: Element) => {
-    window.clearTimeout(pressed.get(btn))
+    window.clearTimeout(pressed.get(btn)?.timer)
     pressed.delete(btn)
     btn.removeAttribute('data-pressed')
+    if (!pressed.size) document.removeEventListener('pointermove', onPressMove)
   }
   const onPress = (event: PointerEvent) => {
     if (event.pointerType === 'mouse') return
     const btn = (event.target as Element | null)?.closest('.btn')
     if (!btn) return
-    window.clearTimeout(pressed.get(btn))
+    window.clearTimeout(pressed.get(btn)?.timer)
     btn.setAttribute('data-pressed', '')
-    pressed.set(
-      btn,
-      window.setTimeout(() => release(btn), 260),
-    )
+    if (!pressed.size) document.addEventListener('pointermove', onPressMove, { passive: true })
+    pressed.set(btn, { timer: window.setTimeout(() => release(btn), PRESS_MS), x: event.clientX, y: event.clientY })
   }
-  // Касание перешло в прокрутку — отклик не нужен.
-  const onPressCancel = (event: PointerEvent) => {
-    const btn = (event.target as Element | null)?.closest('.btn')
-    if (btn && pressed.has(btn)) release(btn)
+  // Касание перешло в прокрутку — отклик не нужен: снимаем метку по сдвигу пальца, не дожидаясь отмены касания.
+  function onPressMove(event: PointerEvent) {
+    pressed.forEach((start, btn) => {
+      if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > PRESS_SLOP) release(btn)
+    })
   }
+  const onPressCancel = () => Array.from(pressed.keys()).forEach(release)
   document.addEventListener('pointerdown', onPress, { passive: true })
   document.addEventListener('pointercancel', onPressCancel, { passive: true })
 
@@ -218,7 +222,7 @@ function setup() {
     document.removeEventListener('click', onClick)
     document.removeEventListener('pointerdown', onPress)
     document.removeEventListener('pointercancel', onPressCancel)
-    pressed.forEach((_, btn) => release(btn))
+    onPressCancel()
     mm.revert()
   }
 }

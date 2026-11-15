@@ -317,8 +317,8 @@ html.lenis body {
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
-  /* clip, а не hidden: заливка шире кнопки, и кнопка не должна становиться прокручиваемой областью */
-  overflow: hidden;
+  /* clip, а не hidden: заливка шире кнопки, и кнопка не должна становиться прокручиваемой областью
+     (запасной вариант для старых браузеров — в блоке @supports ниже по файлу) */
   overflow: clip;
   transition:
     color 0.3s var(--ease-soft) 0.02s,
@@ -391,8 +391,10 @@ html.lenis body {
 
 /* На телефоне наведения нет: нажатие отвечает коротким «глотком» — вино поднимается
    на треть кнопки и уходит обратно, текст остаётся над поверхностью.
-   data-pressed ставит MotionRoot в момент касания и держит четверть секунды, чтобы отклик
-   был виден и при самом быстром нажатии; :active — запасной вариант до загрузки скриптов. */
+   data-pressed ставит MotionRoot в момент касания и держит треть секунды, чтобы отклик
+   был виден и при самом быстром нажатии; :active — запасной вариант до загрузки скриптов.
+   Подъём начинается через 0,08 с: если касание оказалось началом прокрутки, браузер успевает
+   это понять, и кнопка не «всплёскивает» под пальцем. */
 @media (hover: none), (pointer: coarse) {
   .btn::before,
   .btn::after {
@@ -406,8 +408,8 @@ html.lenis body {
   .btn[data-pressed]::after {
     transform: translateY(72%);
     transition:
-      transform 0.2s var(--ease-soft),
-      translate 0.4s var(--ease-soft);
+      transform 0.2s var(--ease-soft) 0.08s,
+      translate 0.4s var(--ease-soft) 0.08s;
   }
   .btn:active::before,
   .btn[data-pressed]::before {
@@ -421,6 +423,11 @@ html.lenis body {
 
 /* Без движения: кнопка меняет цвета сразу, без подъёма и волны. */
 @media (prefers-reduced-motion: reduce) {
+  /* цвет текста меняется в том же кадре, что и заливка: иначе подпись на кадр сливалась бы с фоном */
+  .btn,
+  .btn:hover {
+    transition: none;
+  }
   .btn::before {
     mask-image: none;
     transform: none;
@@ -430,10 +437,16 @@ html.lenis body {
   .btn::after {
     display: none;
   }
+  /* нажатие: цвета меняются сразу, как при наведении */
+  .btn:active,
+  .btn[data-pressed] {
+    color: var(--btn-ink, var(--btn-bg));
+  }
   .btn:active::before,
   .btn[data-pressed]::before {
     transform: none;
     translate: none;
+    opacity: 1;
   }
 }
 @media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) {
@@ -491,53 +504,59 @@ html.lenis body {
   padding-block: 0.25rem;
 }
 
+/* В покое виден обычный текст (.flip__text). Слой ячеек (.flip__row) лежит точно поверх него
+   и показывается только на время наведения. */
 .flip {
+  position: relative;
   display: inline-block;
+  white-space: nowrap;
 }
 /* Окно в одну строку. Запас --flip-pad — под выносные элементы (Д, Щ, у, р): окно их не срезает,
    а ушедшая и пришедшая строки остаются за его краем. */
 .flip__row {
   --flip-pad: 0.2em;
+  position: absolute;
+  left: 0;
+  top: 0;
   display: block;
   padding-block: var(--flip-pad);
   margin-block: calc(var(--flip-pad) * -1);
-  overflow: hidden;
   overflow: clip;
-  white-space: nowrap;
+  visibility: hidden;
 }
-.flip__ch {
+.flip__row > span {
   position: relative;
   display: inline-block;
 }
-.flip__ch::before,
-.flip__ch::after {
+.flip__row > span::before,
+.flip__row > span::after {
   content: attr(data-ch);
 }
 /* Дубль знака ждёт строкой ниже, за краем окна. */
-.flip__ch::after {
+.flip__row > span::after {
   position: absolute;
   left: 0;
   top: calc(100% + var(--flip-pad) * 2);
 }
 /* Очередь: каждая следующая буква трогается чуть позже. */
-.flip__ch:nth-child(2) { --i: 1; }
-.flip__ch:nth-child(3) { --i: 2; }
-.flip__ch:nth-child(4) { --i: 3; }
-.flip__ch:nth-child(5) { --i: 4; }
-.flip__ch:nth-child(6) { --i: 5; }
-.flip__ch:nth-child(7) { --i: 6; }
-.flip__ch:nth-child(8) { --i: 7; }
-.flip__ch:nth-child(9) { --i: 8; }
-.flip__ch:nth-child(10) { --i: 9; }
-.flip__ch:nth-child(11) { --i: 10; }
-.flip__ch:nth-child(12) { --i: 11; }
-.flip__ch:nth-child(13) { --i: 12; }
-.flip__ch:nth-child(14) { --i: 13; }
-.flip__ch:nth-child(15) { --i: 14; }
-.flip__ch:nth-child(16) { --i: 15; }
-.flip__ch:nth-child(17) { --i: 16; }
-.flip__ch:nth-child(18) { --i: 17; }
-.flip__ch:nth-child(n + 19) { --i: 18; }
+.flip__row > span:nth-child(2) { --i: 1; }
+.flip__row > span:nth-child(3) { --i: 2; }
+.flip__row > span:nth-child(4) { --i: 3; }
+.flip__row > span:nth-child(5) { --i: 4; }
+.flip__row > span:nth-child(6) { --i: 5; }
+.flip__row > span:nth-child(7) { --i: 6; }
+.flip__row > span:nth-child(8) { --i: 7; }
+.flip__row > span:nth-child(9) { --i: 8; }
+.flip__row > span:nth-child(10) { --i: 9; }
+.flip__row > span:nth-child(11) { --i: 10; }
+.flip__row > span:nth-child(12) { --i: 11; }
+.flip__row > span:nth-child(13) { --i: 12; }
+.flip__row > span:nth-child(14) { --i: 13; }
+.flip__row > span:nth-child(15) { --i: 14; }
+.flip__row > span:nth-child(16) { --i: 15; }
+.flip__row > span:nth-child(17) { --i: 16; }
+.flip__row > span:nth-child(18) { --i: 17; }
+.flip__row > span:nth-child(n + 19) { --i: 18; }
 
 /* Стрелка: две копии в окне шириной в одну. */
 .arrow {
@@ -547,7 +566,6 @@ html.lenis body {
   width: 2em;
   height: 0.75em;
   margin-left: 0.625em;
-  overflow: hidden;
   overflow: clip;
 }
 .arrow svg {
@@ -564,12 +582,29 @@ html.lenis body {
 }
 
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-  .flip__ch {
+  /* Подмена текста слоем ячеек: при наведении — сразу; обратно — через секунду после ухода
+     курсора, когда буквы уже вернулись на место (самое длинное слово возвращается за 0,95 с). */
+  .flip__text,
+  .flip__row {
+    transition: visibility 0s step-end 1s;
+  }
+  :is(a, button):hover .flip__text,
+  :is(a, button):focus-visible .flip__text {
+    visibility: hidden;
+    transition-delay: 0s;
+  }
+  :is(a, button):hover .flip__row,
+  :is(a, button):focus-visible .flip__row {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .flip__row > span {
     transition: transform 0.55s var(--ease-in-out);
     transition-delay: calc(var(--i, 0) * 22ms);
   }
-  :is(a, button):hover .flip__ch,
-  :is(a, button):focus-visible .flip__ch {
+  :is(a, button):hover .flip__row > span,
+  :is(a, button):focus-visible .flip__row > span {
     transform: translateY(calc(-100% - var(--flip-pad) * 2));
   }
 
@@ -587,11 +622,34 @@ html.lenis body {
   }
 }
 
-/* Без движения ссылка отвечает на курсор приглушением. */
+/* Страница переведена переводчиком Chrome (он ставит класс на <html>): слой ячеек хранит
+   исходное слово, поэтому «перелистывание» отключается и остаётся переведённый текст. */
+html:is(.translated-ltr, .translated-rtl) .flip__row {
+  display: none;
+}
+html:is(.translated-ltr, .translated-rtl) .flip__text {
+  visibility: visible !important;
+}
+
+/* Без движения ссылка отвечает на курсор приглушением (контраст остаётся выше 4,5:1). */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
   :is(a, button):hover .flip,
   :is(a, button):hover .arrow {
-    opacity: 0.62;
+    opacity: 0.8;
+  }
+}
+
+/* Браузеры без overflow: clip (Safari до 16): обрезка через hidden. Отдельным блоком, а не парой
+   объявлений подряд: минификатор при сборке оставляет из пары только последнее. */
+@supports not (overflow: clip) {
+  .btn,
+  .flip__row,
+  .arrow {
+    overflow: hidden;
+  }
+  /* страница не прокручивается вбок и там (у html и body — overflow-x: clip) */
+  body {
+    overflow-x: hidden;
   }
 }
 
@@ -671,7 +729,10 @@ html.lenis body {
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+    /* и задержки: иначе текст кнопки менял бы цвет позже заливки и на мгновение пропадал */
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
 }
