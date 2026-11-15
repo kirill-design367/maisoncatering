@@ -80,7 +80,8 @@
     background: CanvasText;
   }
 
-  .tab[aria-selected='true'] {
+  /* подчёркивание — на самих знаках: внутрь ячеек «перелистывания» оно с вкладки не наследуется */
+  .tab[aria-selected='true'] :global(.flip__ch)::before {
     text-decoration: underline;
   }
 }

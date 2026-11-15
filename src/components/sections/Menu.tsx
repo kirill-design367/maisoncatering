@@ -1,4 +1,5 @@
 import { cta, formats, formatPricePerGuest, menuSection, sectionIds } from '@/data/site'
+import { Flip } from '@/components/ui/Flip'
 import { Lines } from '@/components/ui/Lines'
 import { typo } from '@/lib/typo'
 import { MenuTabs } from './MenuTabs'
@@ -42,7 +43,7 @@ export function Menu() {
                       data-format={f.id}
                       className={`t-label ${styles.tab}`}
                     >
-                      {f.title}
+                      <Flip text={f.title} />
                     </button>
                   ))}
                   <span className={styles.indicator} data-menu-indicator aria-hidden="true" />

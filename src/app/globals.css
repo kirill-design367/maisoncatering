@@ -380,62 +380,120 @@ html.lenis body {
   padding: 0.625rem 1.25rem;
 }
 
-/* ── Ссылки с линией ───────────────────────────────────────────────────────── */
+/* ── Текстовые ссылки ────────────────────────────────────────────────────────
+   Подчёркивания при наведении нет. Ссылка отвечает «перелистыванием»: буквы по очереди уходят
+   вверх, а на их место снизу поднимается то же слово (компонент Flip). Стрелка у ссылки-действия
+   улетает вправо и возвращается слева (компонент Arrow). Двигаются только transform. */
 
 .link {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding-block: 0.25rem;
 }
-.link::after {
-  content: '';
+
+.flip {
+  display: inline-block;
+}
+/* Окно в одну строку. Запас --flip-pad — под выносные элементы (Д, Щ, у, р): окно их не срезает,
+   а ушедшая и пришедшая строки остаются за его краем. */
+.flip__row {
+  --flip-pad: 0.2em;
+  display: block;
+  padding-block: var(--flip-pad);
+  margin-block: calc(var(--flip-pad) * -1);
+  overflow: hidden;
+  overflow: clip;
+  white-space: nowrap;
+}
+.flip__ch {
+  position: relative;
+  display: inline-block;
+}
+.flip__ch::before,
+.flip__ch::after {
+  content: attr(data-ch);
+}
+/* Дубль знака ждёт строкой ниже, за краем окна. */
+.flip__ch::after {
   position: absolute;
   left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: currentColor;
-  transform-origin: left center;
+  top: calc(100% + var(--flip-pad) * 2);
 }
-@media (hover: hover) and (pointer: fine) {
-  .link:hover::after {
-    animation: link-redraw 0.9s var(--ease-in-out);
-  }
+/* Очередь: каждая следующая буква трогается чуть позже. */
+.flip__ch:nth-child(2) { --i: 1; }
+.flip__ch:nth-child(3) { --i: 2; }
+.flip__ch:nth-child(4) { --i: 3; }
+.flip__ch:nth-child(5) { --i: 4; }
+.flip__ch:nth-child(6) { --i: 5; }
+.flip__ch:nth-child(7) { --i: 6; }
+.flip__ch:nth-child(8) { --i: 7; }
+.flip__ch:nth-child(9) { --i: 8; }
+.flip__ch:nth-child(10) { --i: 9; }
+.flip__ch:nth-child(11) { --i: 10; }
+.flip__ch:nth-child(12) { --i: 11; }
+.flip__ch:nth-child(13) { --i: 12; }
+.flip__ch:nth-child(14) { --i: 13; }
+.flip__ch:nth-child(15) { --i: 14; }
+.flip__ch:nth-child(16) { --i: 15; }
+.flip__ch:nth-child(17) { --i: 16; }
+.flip__ch:nth-child(18) { --i: 17; }
+.flip__ch:nth-child(n + 19) { --i: 18; }
+
+/* Стрелка: две копии в окне шириной в одну. */
+.arrow {
+  position: relative;
+  flex: none;
+  display: inline-block;
+  width: 2em;
+  height: 0.75em;
+  margin-left: 0.625em;
+  overflow: hidden;
+  overflow: clip;
 }
-@keyframes link-redraw {
-  0% {
-    transform: scaleX(1);
-    transform-origin: right center;
+.arrow svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1px;
+}
+.arrow svg:last-child {
+  transform: translateX(-125%);
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .flip__ch {
+    transition: transform 0.55s var(--ease-in-out);
+    transition-delay: calc(var(--i, 0) * 22ms);
   }
-  45% {
-    transform: scaleX(0);
-    transform-origin: right center;
+  :is(a, button):hover .flip__ch,
+  :is(a, button):focus-visible .flip__ch {
+    transform: translateY(calc(-100% - var(--flip-pad) * 2));
   }
-  45.01% {
-    transform: scaleX(0);
-    transform-origin: left center;
+
+  .arrow svg {
+    transition: transform 0.6s var(--ease-in-out);
   }
-  100% {
-    transform: scaleX(1);
-    transform-origin: left center;
+  :is(a, button):hover .arrow svg:first-child,
+  :is(a, button):focus-visible .arrow svg:first-child {
+    transform: translateX(125%);
+  }
+  :is(a, button):hover .arrow svg:last-child,
+  :is(a, button):focus-visible .arrow svg:last-child {
+    transform: translateX(0);
+    transition-delay: 0.1s;
   }
 }
 
-/* Ссылка, у которой линия появляется при наведении (навигация). */
-.link--quiet::after {
-  transform: scaleX(0);
-  transform-origin: right center;
-  transition: transform 0.6s var(--ease-out-expo);
-}
-@media (hover: hover) and (pointer: fine) {
-  .link--quiet:hover::after {
-    animation: none;
-    transform: scaleX(1);
-    transform-origin: left center;
+/* Без движения ссылка отвечает на курсор приглушением. */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+  :is(a, button):hover .flip,
+  :is(a, button):hover .arrow {
+    opacity: 0.62;
   }
-}
-.link--quiet[aria-current='true']::after {
-  transform: scaleX(1);
 }
 
 /* ── Служебное ─────────────────────────────────────────────────────────────── */

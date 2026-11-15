@@ -1,4 +1,6 @@
 import { formatPricePerGuest, formats, formatsSection, sectionIds } from '@/data/site'
+import { Arrow } from '@/components/ui/Arrow'
+import { Flip } from '@/components/ui/Flip'
 import { Lines } from '@/components/ui/Lines'
 import { Picture } from '@/components/ui/Picture'
 import { FormatsInteractive } from './FormatsInteractive'
@@ -111,7 +113,8 @@ export function Formats() {
                     </div>
                     <div className={styles.panelLink} data-formats-panel-link>
                       <a href={menuHref} data-menu-format={format.id} className={`t-label link ${styles.menuLink}`}>
-                        {formatsSection.menuLinkLabel}
+                        <Flip text={formatsSection.menuLinkLabel} />
+                        <Arrow />
                       </a>
                     </div>
                   </div>

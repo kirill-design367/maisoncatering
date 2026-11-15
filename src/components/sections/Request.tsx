@@ -1,4 +1,6 @@
 import { contacts, footer, requestSection, sectionIds } from '@/data/site'
+import { Arrow } from '@/components/ui/Arrow'
+import { Flip } from '@/components/ui/Flip'
 import { Lines } from '@/components/ui/Lines'
 import { RequestForm } from './RequestForm'
 import styles from './request.module.css'
@@ -46,8 +48,8 @@ export function Request() {
           <div className={styles.contacts} data-reveal="fade">
             <h3 className="sr-only">{requestSection.contactsTitle}</h3>
             <address className={styles.address}>
-            <a href={contacts.phoneHref} className={`t-display t-num link link--quiet ${styles.phone}`}>
-              {contacts.phoneDisplay}
+            <a href={contacts.phoneHref} className={`t-display t-num link ${styles.phone}`}>
+              <Flip text={contacts.phoneDisplay} font="display" />
             </a>
 
             <div className={styles.meta}>
@@ -56,7 +58,8 @@ export function Request() {
                 {messengers.map((item) => (
                   <li key={item.href}>
                     <a href={item.href} className="t-label link" target="_blank" rel="noopener noreferrer">
-                      {item.label}
+                      <Flip text={item.label} />
+                      <Arrow />
                     </a>
                   </li>
                 ))}
@@ -85,8 +88,8 @@ export function Request() {
             <p>
               © {year} {footer.copyright}
             </p>
-            <a href={contacts.phoneHref} className={`t-num link link--quiet ${styles.footerPhone}`}>
-              {contacts.phoneDisplay}
+            <a href={contacts.phoneHref} className={`t-num link ${styles.footerPhone}`}>
+              <Flip text={contacts.phoneDisplay} caps={false} />
             </a>
           </div>
         </footer>
