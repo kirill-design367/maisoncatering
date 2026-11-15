@@ -317,7 +317,9 @@ html.lenis body {
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
+  /* clip, а не hidden: заливка шире кнопки, и кнопка не должна становиться прокручиваемой областью */
   overflow: hidden;
+  overflow: clip;
   transition:
     color 0.3s var(--ease-soft) 0.02s,
     transform 0.25s var(--ease-soft);
