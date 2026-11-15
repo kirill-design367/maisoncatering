@@ -1,37 +1,53 @@
-/* 6. Как проходит. */
+/* 6. Как проходит. Линия под номерами — держатель барной стойки, под каждым шагом висит бокал. */
 
 .section {
   z-index: 1;
 }
 
 .row {
-  --num: 5rem;
+  --num: 4.5rem;
+  /* единица рисунка бокала: 1px при кегле 16px; на мобильном бокалы мельче */
+  --u: calc(1rem / 16 * 0.66);
+  /* ось бокала от левого края шага */
+  --axis: 2.375rem;
+  /* от линии шрифта номера до стойки */
+  --rail-gap: 1rem;
   position: relative;
-  margin-top: 2.5rem;
+  margin-top: 2.75rem;
 }
 
-/* Сплошная линия через все шаги нужна только на десктопе. */
+/* Стойка и бокалы — одна линия: сплошная бордовая, 1px. */
+.line,
+.rail {
+  display: block;
+  height: 1px;
+  background: var(--color-bordo);
+  transform-origin: left center;
+}
+
+/* Сплошная стойка через все шаги нужна только на десктопе. */
 .line {
   display: none;
 }
 
-/* ── Мобильная композиция: шаги вертикально, номер слева ─────────────────────── */
+/* ── Мобильная композиция: шаги вертикально, у каждого свой отрезок стойки ───── */
 
 .step {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr);
-  column-gap: 0.75rem;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  grid-template-rows: auto auto 1fr;
+  column-gap: 1.25rem;
   align-items: start;
-  padding-block: 1.75rem;
-  border-top: 1px solid var(--color-line);
 }
 
-.step:last-child {
-  border-bottom: 1px solid var(--color-line);
+.step + .step {
+  margin-top: 2.75rem;
 }
 
 /* Номер: коробка обрезана по высоте цифры (сверху — до верха цифры, снизу — до линии шрифта). */
 .num {
+  grid-column: 1;
+  grid-row: 1;
   /* flow-root: отступы маски внутри не схлопываются с отступами самого номера */
   display: flow-root;
   font-size: var(--num);
@@ -40,6 +56,61 @@
   margin-bottom: -0.112em;
   /* цифра «1» узкая и с отступом слева: подтягиваем к общей вертикали */
   margin-left: -0.04em;
+}
+
+/* Маска номера доходит ровно до стойки: при появлении цифра поднимается из-за линии,
+   а не проступает под ней поверх бокалов. (0.112em — от линии шрифта до низа строки.) */
+.num :global(.line) {
+  padding-bottom: max(0px, calc(var(--rail-gap) - 0.112em));
+  margin-bottom: min(0px, calc(0.112em - var(--rail-gap)));
+}
+
+.rail {
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: var(--rail-gap);
+}
+
+/* Место под бокал: от линии стойки вниз на высоту рисунка. */
+.hang {
+  grid-column: 1;
+  grid-row: 3;
+  position: relative;
+  display: block;
+  height: calc(var(--gh) * var(--u));
+}
+
+/* Рисунок начинается чуть выше линии: подставка бокала лежит на стойке. */
+.glass {
+  position: absolute;
+  top: calc(-6 * var(--u));
+  left: calc(var(--axis) - var(--gw) * var(--u) / 2);
+  display: block;
+  width: calc(var(--gw) * var(--u));
+  height: calc((var(--gh) + 6) * var(--u));
+  color: var(--color-bordo);
+}
+
+.glass svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1px;
+  stroke-linecap: round;
+  /* бокал качается вокруг точки, где ножка проходит через стойку */
+  transform-origin: 50% calc(6 * var(--u));
+}
+
+.glass svg :is(path, ellipse) {
+  vector-effect: non-scaling-stroke;
+}
+
+.body {
+  grid-column: 2;
+  grid-row: 1 / span 3;
 }
 
 .title {
@@ -53,13 +124,16 @@
   color: var(--color-ink-2);
 }
 
-/* ── Десктоп: четыре шага в одну линию ─────────────────────────────────────── */
+/* ── Десктоп: четыре шага в одну линию, стойка через все шаги ─────────────────── */
 
 @media (min-width: 64rem) {
   .row {
     --num: clamp(7rem, 11vw, 18rem);
     /* высота цифры: кегль × высота прописной */
     --num-h: calc(var(--num) * var(--wm-cap-ratio));
+    --u: calc(1rem / 16 * 1.2);
+    --axis: 3rem;
+    --rail-gap: 2rem;
     margin-top: clamp(4rem, 7vw, 9rem);
   }
 
@@ -67,7 +141,12 @@
     display: block;
     position: absolute;
     left: 0;
-    top: calc(var(--num-h) + 2rem);
+    right: 0;
+    top: calc(var(--num-h) + var(--rail-gap));
+  }
+
+  .rail {
+    display: none;
   }
 
   .steps {
@@ -78,16 +157,21 @@
 
   .step {
     display: block;
-    padding-block: 0;
-    border: 0;
   }
 
-  .step:last-child {
-    border: 0;
+  .step + .step {
+    margin-top: 0;
+  }
+
+  /* Место под бокал одной высоты у всех шагов (по самому длинному — флюте):
+     названия шагов стоят на одной линии. Верх — на линии стойки. */
+  .hang {
+    height: calc(158 * var(--u));
+    margin-top: calc(var(--rail-gap) + 1px);
   }
 
   .body {
-    margin-top: 4rem;
+    margin-top: 2.25rem;
   }
 
   .title {
@@ -97,5 +181,26 @@
   .text {
     max-width: 17rem;
     margin-top: 0.75rem;
+  }
+}
+
+/* ── Исходные состояния появления ─────────────────────────────────────────────
+   Только когда работает JS и разрешено движение: иначе стойка, бокалы и текст видны сразу.
+   Запускает ProcessMotion. */
+
+@media (prefers-reduced-motion: no-preference) {
+  :global(.js) .line,
+  :global(.js) .rail {
+    transform: scaleX(0);
+  }
+  :global(.js) .num :global(.line__inner) {
+    transform: translateY(112%);
+  }
+  :global(.js) .glass {
+    opacity: 0;
+  }
+  :global(.js) .body {
+    opacity: 0;
+    transform: translateY(1.5rem);
   }
 }
