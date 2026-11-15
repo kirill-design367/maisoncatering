@@ -3,7 +3,7 @@ import { HeaderState } from './HeaderState'
 import styles from './header.module.css'
 
 /**
- * Шапка. Десктоп: вордмарк слева, пункты по центру, телефон и кнопка справа.
+ * Шапка. Десктоп: вордмарк слева, пункты по центру (антиквой, как вордмарк), телефон и кнопка справа.
  * Мобильная: вордмарк слева, бургер справа (полноэкранное меню — MobileMenu).
  * Шапка закреплена: с любого экрана до заявки — одно действие.
  */
@@ -20,7 +20,7 @@ export function Header({ mobileMenu }: { mobileMenu?: React.ReactNode }) {
           <ul className={styles.navList}>
             {nav.map((item) => (
               <li key={item.href}>
-                <a href={item.href} className="t-label link link--quiet" data-nav-link>
+                <a href={item.href} className={`link link--quiet ${styles.navLink}`} data-nav-link>
                   {item.label}
                 </a>
               </li>
