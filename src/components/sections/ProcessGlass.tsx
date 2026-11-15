@@ -1,6 +1,12 @@
+import type { CSSProperties } from 'react'
+import styles from './process.module.css'
+
 /**
  * Бокалы блока «Как проходит»: висят на стойке ножкой вверх.
  * Нарисованы линией в 1px той же толщины, что и сама стойка (vector-effect: non-scaling-stroke).
+ * Ножка — не штрих SVG, а такая же линия-блок, как стойка: браузер ставит её на сетку пикселей,
+ * и в покое она остаётся чёткой линией в 1px при любом положении бокала (штрих SVG, попав между
+ * пикселями, размывался на два). Подставка, чаша и край — SVG.
  *
  * Координаты: x = 0 — ось бокала, y = 0 — линия стойки. Подставка лежит на стойке (выше линии),
  * ножка проходит сквозь неё, чаша висит ниже. Единица — 1px при кегле 16px (см. --u в стилях блока).
@@ -77,14 +83,18 @@ export function ProcessGlass({ kind }: { kind: GlassKind }) {
   const flare = `M-${foot - 1} -2.4C-${foot * 0.45} -1.8 -0.5 0.8 0 9`
 
   return (
-    <svg viewBox={`${-width / 2} ${-GLASS_TOP} ${width} ${height + GLASS_TOP}`} focusable="false" data-process-swing>
-      <ellipse cx="0" cy="-3.2" rx={foot} ry="2.2" />
-      <path d={flare} />
-      <path d={flare} transform="scale(-1 1)" />
-      <path d={`M0 9V${stem}`} />
-      <path d={bowl} />
-      <path d={bowl} transform="scale(-1 1)" />
-      <ellipse cx="0" cy={rimY} rx={rimX} ry={rimR} />
-    </svg>
+    // Рисунок целиком качается вокруг точки подвеса (ProcessMotion).
+    <span className={styles.drawing} data-process-swing>
+      <svg viewBox={`${-width / 2} ${-GLASS_TOP} ${width} ${height + GLASS_TOP}`} focusable="false">
+        <ellipse cx="0" cy="-3.2" rx={foot} ry="2.2" />
+        <path d={flare} />
+        <path d={flare} transform="scale(-1 1)" />
+        <path d={bowl} />
+        <path d={bowl} transform="scale(-1 1)" />
+        <ellipse cx="0" cy={rimY} rx={rimX} ry={rimR} />
+      </svg>
+      {/* ножка: от конуса подставки (y = 9) до чаши */}
+      <span className={styles.stem} style={{ '--stem': stem } as CSSProperties} />
+    </span>
   )
 }
