@@ -273,7 +273,9 @@
   align-items: center;
   min-height: 3rem;
   padding-block: 0;
-  font-size: clamp(1.75rem, 9.2vw, 2.5rem);
+  /* номер не переносится (он занимает около 7,9 кегля), поэтому кегль ограничен шириной строки:
+     при увеличенном шрифте браузера на узком экране номер не уходит за край */
+  font-size: min(clamp(1.75rem, 9.2vw, 2.5rem), calc((100vw - 2 * var(--gutter)) / 8));
   line-height: 1;
   white-space: nowrap;
 }

@@ -23,7 +23,8 @@ export function HeaderState() {
         triggers.push(
           ScrollTrigger.create({
             start: 8,
-            end: 'max',
+            // на пиксель дальше конца страницы: иначе в самом низу триггер гаснет и линия под шапкой пропадает
+            end: () => ScrollTrigger.maxScroll(window) + 1,
             onToggle: (self) => header.toggleAttribute('data-scrolled', self.isActive),
           }),
         )

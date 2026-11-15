@@ -275,17 +275,11 @@
   margin-top: 0.75rem;
 }
 
-/* Зона нажатия ссылки — 44px; линия остаётся под самим текстом. */
+/* Зона нажатия ссылки — 44px. */
 .menuLink {
-  display: inline-flex;
-  align-items: center;
   min-height: 2.75rem;
   padding-block: 0;
   color: var(--color-bordo);
-}
-
-.menuLink::after {
-  bottom: 0.625rem;
 }
 
 /* Планшет: кадр занимает половину ширины, ссылка стоит справа от него по нижнему краю. */

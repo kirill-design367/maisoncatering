@@ -187,7 +187,6 @@
 
   .link {
     flex: none;
-    display: inline-block;
     min-height: 0;
     margin-top: 0;
     padding-block: 0.25rem;
@@ -202,6 +201,13 @@
 
   .half[data-dir='delivery'] .link {
     transform: translate3d(calc((8 + var(--p) * 8) * 1cqw + var(--gap) / 2), 0, 0);
+  }
+
+  /* Эта ссылка прижата к правому краю сцены, а сцена обрезает всё за своим краем.
+     В фокусе с клавиатуры ссылка отступает на ширину контура — рамка видна целиком. */
+  .half[data-dir='delivery'] .link:focus-visible {
+    /* в пикселях, как сам контур (2px + отступ 3px) */
+    translate: -5px 0;
   }
 }
 

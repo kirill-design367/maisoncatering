@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { brand, contacts } from '@/data/site'
+import { Flip } from '@/components/ui/Flip'
 import { fontsPage, pairs } from './pairs'
 import styles from './fonts.module.css'
 
@@ -18,8 +19,8 @@ export default function FontsPage() {
   return (
     <main className={styles.page}>
       <header className={`wrap ${styles.top}`}>
-        <Link href="/" className="t-label link link--quiet">
-          {fontsPage.back}
+        <Link href="/" className="t-label link">
+          <Flip text={fontsPage.back} />
         </Link>
         <span className="t-label t-muted">
           {brand.name}, {contacts.city}

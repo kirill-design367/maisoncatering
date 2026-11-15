@@ -35,6 +35,8 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* «Налив» кнопки: уровень сразу трогается, идёт ровно и мягко доходит до края. */
+  --ease-pour: cubic-bezier(0.37, 0.2, 0.25, 1);
 }
 
 :root {
@@ -315,46 +317,176 @@ html.lenis body {
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
-  overflow: hidden;
+  /* clip, а не hidden: заливка шире кнопки, и кнопка не должна становиться прокручиваемой областью
+     (запасной вариант для старых браузеров — в блоке @supports ниже по файлу) */
+  overflow: clip;
   transition:
-    color 0.5s var(--ease-out-expo),
+    color 0.3s var(--ease-soft) 0.02s,
     transform 0.25s var(--ease-soft);
 }
-/* Заливка «шторкой» снизу: кнопка отвечает на курсор сменой фона и текста. */
-.btn::before {
+
+/* «Налив». Кнопка наполняется снизу, как бокал вином: заливка поднимается, её верхний край —
+   поверхность жидкости — мягко колышется, текст меняет цвет. Заливка — два слоя одного цвета
+   с волнистым верхним краем (маска): слои едут навстречу друг другу, и общая кромка всё время
+   меняет форму. Двигаются только transform (уровень) и translate (волна).
+   Слой вдвое шире кнопки: при сдвиге волны он продолжает закрывать её целиком. */
+.btn::before,
+.btn::after {
+  /* высота полосы с волной: гребни на 1/12, впадины на 8,5/12, ниже — сплошная часть */
+  --wave-h: 0.75rem;
   content: '';
   position: absolute;
-  inset: -1px;
+  left: 0;
+  bottom: -1px;
   z-index: -1;
-  background: var(--btn-fg);
-  transform: scaleY(0);
-  transform-origin: center bottom;
-  transition: transform 0.6s var(--ease-out-expo);
+  width: 200%;
+  height: calc(100% + var(--wave-h) + 2px);
+  background: var(--btn-fill, var(--btn-fg));
+  /* #000 здесь — не цвет интерфейса, а непрозрачная часть маски */
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 12' preserveAspectRatio='none'%3E%3Cpath d='M0 8.5C18.2 8.5 31.8 1 50 1S81.8 8.5 100 8.5 131.8 1 150 1 181.8 8.5 200 8.5 231.8 1 250 1 281.8 8.5 300 8.5 331.8 1 350 1 381.8 8.5 400 8.5V12H0Z'/%3E%3C/svg%3E"),
+    linear-gradient(#000, #000);
+  /* сплошная часть заходит на полосу с волной на 2px: при дробном масштабе экрана на стыке
+     двух слоёв маски не остаётся волосяного шва */
+  mask-size:
+    100% var(--wave-h),
+    100% calc(100% - var(--wave-h) + 2px);
+  mask-position:
+    0 0,
+    0 100%;
+  mask-repeat: no-repeat;
+  /* в покое заливка целиком под нижним краем кнопки */
+  transform: translateY(101%);
+  transition:
+    transform 0.7s var(--ease-soft),
+    translate 0.9s var(--ease-soft);
 }
+/* Вторая волна: длиннее и ниже, идёт навстречу первой. */
+.btn::after {
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 12' preserveAspectRatio='none'%3E%3Cpath d='M0 8.5C18.2 8.5 31.8 3.5 50 3.5S81.8 8.5 100 8.5 131.8 3.5 150 3.5 181.8 8.5 200 8.5 231.8 3.5 250 3.5 281.8 8.5 300 8.5V12H0Z'/%3E%3C/svg%3E"),
+    linear-gradient(#000, #000);
+  translate: -22% 0;
+}
+
+/* html[data-touch] — последнее нажатие было пальцем (ноутбук с сенсорным экраном): метку ставит
+   MotionRoot и снимает при первом движении мыши. Пока она стоит, наведение не действует —
+   иначе кнопка после касания оставалась бы «налитой». :where() не меняет вес селекторов. */
 @media (hover: hover) and (pointer: fine) {
-  .btn:hover {
-    color: var(--btn-bg);
+  :where(html:not([data-touch])) .btn:hover {
+    color: var(--btn-ink, var(--btn-bg));
+    /* текст меняет цвет в тот момент, когда поверхность проходит через строку */
+    transition:
+      color 0.35s var(--ease-soft) 0.2s,
+      transform 0.25s var(--ease-soft);
   }
-  .btn:hover::before {
-    transform: scaleY(1);
+  :where(html:not([data-touch])) .btn:hover::before,
+  :where(html:not([data-touch])) .btn:hover::after {
+    transform: translateY(0);
+    transition:
+      transform 1.15s var(--ease-pour),
+      translate 2.2s var(--ease-soft);
+  }
+  :where(html:not([data-touch])) .btn:hover::before {
+    translate: -20% 0;
+  }
+  :where(html:not([data-touch])) .btn:hover::after {
+    translate: -4% 0;
   }
 }
+
+/* На телефоне наведения нет: нажатие отвечает коротким «глотком» — вино поднимается
+   на треть кнопки и уходит обратно, текст остаётся над поверхностью.
+   data-pressed ставит MotionRoot в момент касания и держит треть секунды, чтобы отклик
+   был виден и при самом быстром нажатии; :active — запасной вариант до загрузки скриптов.
+   Подъём начинается через 0,08 с: если касание оказалось началом прокрутки, браузер успевает
+   это понять, и кнопка не «всплёскивает» под пальцем. */
+@media (hover: none), (pointer: coarse) {
+  .btn::before,
+  .btn::after {
+    transition:
+      transform 0.6s var(--ease-soft) 0.08s,
+      translate 0.9s var(--ease-soft) 0.08s;
+  }
+  .btn:active::before,
+  .btn:active::after,
+  .btn[data-pressed]::before,
+  .btn[data-pressed]::after {
+    transform: translateY(72%);
+    transition:
+      transform 0.2s var(--ease-soft) 0.08s,
+      translate 0.4s var(--ease-soft) 0.08s;
+  }
+  .btn:active::before,
+  .btn[data-pressed]::before {
+    translate: -8% 0;
+  }
+  .btn:active::after,
+  .btn[data-pressed]::after {
+    translate: -14% 0;
+  }
+}
+/* Тот же «глоток» при касании на устройстве с мышью (сенсорный ноутбук). */
+html[data-touch] .btn[data-pressed]::before,
+html[data-touch] .btn[data-pressed]::after {
+  transform: translateY(72%);
+  transition:
+    transform 0.2s var(--ease-soft) 0.08s,
+    translate 0.4s var(--ease-soft) 0.08s;
+}
+html[data-touch] .btn[data-pressed]::before {
+  translate: -8% 0;
+}
+html[data-touch] .btn[data-pressed]::after {
+  translate: -14% 0;
+}
+
+/* Без движения: кнопка меняет цвета сразу, без подъёма и волны. */
+@media (prefers-reduced-motion: reduce) {
+  /* цвет текста меняется в том же кадре, что и заливка: иначе подпись на кадр сливалась бы с фоном */
+  .btn,
+  .btn:hover {
+    transition: none;
+  }
+  .btn::before {
+    mask-image: none;
+    transform: none;
+    translate: none;
+    opacity: 0;
+  }
+  .btn::after {
+    display: none;
+  }
+  /* нажатие: цвета меняются сразу, как при наведении */
+  .btn:active,
+  .btn[data-pressed] {
+    color: var(--btn-ink, var(--btn-bg));
+  }
+  .btn:active::before,
+  .btn[data-pressed]::before {
+    transform: none;
+    translate: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) {
+  :where(html:not([data-touch])) .btn:hover::before {
+    transform: none;
+    translate: none;
+    opacity: 1;
+  }
+}
+
 .btn:active {
   transform: scale(0.98);
 }
 
-/* Контурная кнопка. */
+/* Контурная кнопка: прозрачная, наливается своим цветом (на молочном — бордо). */
 .btn--ghost {
+  --btn-fill: var(--btn-bg);
+  --btn-ink: var(--btn-fg);
   background: transparent;
   color: var(--btn-bg);
-}
-.btn--ghost::before {
-  background: var(--btn-bg);
-}
-@media (hover: hover) and (pointer: fine) {
-  .btn--ghost:hover {
-    color: var(--btn-fg);
-  }
 }
 
 /* На бордовом экране кнопка молочная. */
@@ -380,62 +512,191 @@ html.lenis body {
   padding: 0.625rem 1.25rem;
 }
 
-/* ── Ссылки с линией ───────────────────────────────────────────────────────── */
+/* ── Текстовые ссылки ────────────────────────────────────────────────────────
+   Подчёркивания при наведении нет. Ссылка отвечает «перелистыванием»: буквы по очереди уходят
+   вверх, а на их место снизу поднимается то же слово (компонент Flip). Стрелка у ссылки-действия
+   улетает вправо и возвращается слева (компонент Arrow). Двигаются только transform. */
 
 .link {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   padding-block: 0.25rem;
 }
-.link::after {
-  content: '';
+
+/* В покое виден обычный текст (.flip__text). Слой ячеек (.flip__row) лежит точно поверх него
+   и показывается только на время наведения. */
+.flip {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+}
+/* Окно в одну строку. Запас --flip-pad — под выносные элементы (Д, Щ, у, р): окно их не срезает,
+   а ушедшая и пришедшая строки остаются за его краем. */
+.flip__row {
+  --flip-pad: 0.2em;
   position: absolute;
   left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: currentColor;
-  transform-origin: left center;
+  top: 0;
+  display: block;
+  padding-block: var(--flip-pad);
+  margin-block: calc(var(--flip-pad) * -1);
+  overflow: clip;
+  visibility: hidden;
+  /* слой не перехватывает мышь: текст под ним можно выделить и скопировать */
+  pointer-events: none;
 }
-@media (hover: hover) and (pointer: fine) {
-  .link:hover::after {
-    animation: link-redraw 0.9s var(--ease-in-out);
-  }
+.flip__row > span {
+  position: relative;
+  display: inline-block;
 }
-@keyframes link-redraw {
-  0% {
-    transform: scaleX(1);
-    transform-origin: right center;
+.flip__row > span::before,
+.flip__row > span::after {
+  content: attr(data-ch);
+}
+/* Дубль знака ждёт строкой ниже, за краем окна. */
+.flip__row > span::after {
+  position: absolute;
+  left: 0;
+  top: calc(100% + var(--flip-pad) * 2);
+}
+/* Очередь: каждая следующая буква трогается чуть позже. */
+.flip__row > span:nth-child(2) { --i: 1; }
+.flip__row > span:nth-child(3) { --i: 2; }
+.flip__row > span:nth-child(4) { --i: 3; }
+.flip__row > span:nth-child(5) { --i: 4; }
+.flip__row > span:nth-child(6) { --i: 5; }
+.flip__row > span:nth-child(7) { --i: 6; }
+.flip__row > span:nth-child(8) { --i: 7; }
+.flip__row > span:nth-child(9) { --i: 8; }
+.flip__row > span:nth-child(10) { --i: 9; }
+.flip__row > span:nth-child(11) { --i: 10; }
+.flip__row > span:nth-child(12) { --i: 11; }
+.flip__row > span:nth-child(13) { --i: 12; }
+.flip__row > span:nth-child(14) { --i: 13; }
+.flip__row > span:nth-child(15) { --i: 14; }
+.flip__row > span:nth-child(16) { --i: 15; }
+.flip__row > span:nth-child(17) { --i: 16; }
+.flip__row > span:nth-child(18) { --i: 17; }
+.flip__row > span:nth-child(n + 19) { --i: 18; }
+
+/* Стрелка: две копии в окне шириной в одну. */
+.arrow {
+  position: relative;
+  flex: none;
+  display: inline-block;
+  width: 2em;
+  height: 0.75em;
+  margin-left: 0.625em;
+  overflow: clip;
+}
+.arrow svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1px;
+}
+.arrow svg:last-child {
+  transform: translateX(-125%);
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  /* Подмена текста слоем ячеек: при наведении — сразу; обратно — через секунду после ухода
+     курсора, когда буквы уже вернулись на место (самое длинное слово возвращается за 0,95 с).
+     Текст прячется прозрачностью, а не visibility: так он остаётся в дереве доступности
+     (у ссылки под курсором и в фокусе есть имя), его находит поиск и можно выделить. */
+  .flip__text {
+    transition: opacity 0s step-end 1s;
   }
-  45% {
-    transform: scaleX(0);
-    transform-origin: right center;
+  .flip__row {
+    transition: visibility 0s step-end 1s;
   }
-  45.01% {
-    transform: scaleX(0);
-    transform-origin: left center;
+  :is(a, button):hover .flip__text,
+  :is(a, button):focus-visible .flip__text {
+    opacity: 0;
+    transition-delay: 0s;
   }
-  100% {
-    transform: scaleX(1);
-    transform-origin: left center;
+  :is(a, button):hover .flip__row,
+  :is(a, button):focus-visible .flip__row {
+    visibility: visible;
+    transition-delay: 0s;
+  }
+
+  .flip__row > span {
+    transition: transform 0.55s var(--ease-in-out);
+    transition-delay: calc(var(--i, 0) * 22ms);
+  }
+  :is(a, button):hover .flip__row > span,
+  :is(a, button):focus-visible .flip__row > span {
+    transform: translateY(calc(-100% - var(--flip-pad) * 2));
+  }
+
+  .arrow svg {
+    transition: transform 0.6s var(--ease-in-out);
+  }
+  :is(a, button):hover .arrow svg:first-child,
+  :is(a, button):focus-visible .arrow svg:first-child {
+    transform: translateX(125%);
+  }
+  :is(a, button):hover .arrow svg:last-child,
+  :is(a, button):focus-visible .arrow svg:last-child {
+    transform: translateX(0);
+    transition-delay: 0.1s;
   }
 }
 
-/* Ссылка, у которой линия появляется при наведении (навигация). */
-.link--quiet::after {
-  transform: scaleX(0);
-  transform-origin: right center;
-  transition: transform 0.6s var(--ease-out-expo);
-}
-@media (hover: hover) and (pointer: fine) {
-  .link--quiet:hover::after {
-    animation: none;
-    transform: scaleX(1);
-    transform-origin: left center;
+/* Путь буквы — высота строки плюс запас. Округляем его до целого пикселя: иначе в конце
+   «перелистывания» слово вставало бы на долю пикселя выше или ниже, чем стояло.
+   Где round() и lh не поддерживаются, остаётся путь в долях (правила выше). */
+@supports (top: round(up, 1lh, 1px)) {
+  .flip__row > span::after {
+    top: round(up, calc(1lh + var(--flip-pad) * 2), 1px);
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    :is(a, button):hover .flip__row > span,
+    :is(a, button):focus-visible .flip__row > span {
+      transform: translateY(calc(-1 * round(up, calc(1lh + var(--flip-pad) * 2), 1px)));
+    }
   }
 }
-.link--quiet[aria-current='true']::after {
-  transform: scaleX(1);
+
+/* «Перелистывание» отключено, остаётся обычный текст:
+   — страницу перевёл переводчик (слой ячеек хранит исходное слово): Chrome ставит класс на <html>,
+     остальных ловит MotionRoot по изменению текста и ставит data-flip-off;
+   — слово попало в выделение (MotionRoot): подсветка выделения должна быть видна. */
+html:is(.translated-ltr, .translated-rtl) .flip__row,
+.flip[data-flip-off] .flip__row {
+  display: none;
+}
+html:is(.translated-ltr, .translated-rtl) .flip__text,
+.flip[data-flip-off] .flip__text {
+  opacity: 1 !important;
+}
+
+/* Без движения ссылка отвечает на курсор приглушением (контраст остаётся выше 4,5:1). */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: reduce) {
+  :is(a, button):hover .flip,
+  :is(a, button):hover .arrow {
+    opacity: 0.8;
+  }
+}
+
+/* Браузеры без overflow: clip (Safari до 16): обрезка через hidden. Отдельным блоком, а не парой
+   объявлений подряд: минификатор при сборке оставляет из пары только последнее. */
+@supports not (overflow: clip) {
+  .btn,
+  .flip__row,
+  .arrow {
+    overflow: hidden;
+  }
+  /* страница не прокручивается вбок и там (у html и body — overflow-x: clip) */
+  html,
+  body {
+    overflow-x: hidden;
+  }
 }
 
 /* ── Служебное ─────────────────────────────────────────────────────────────── */
@@ -515,6 +776,8 @@ html.lenis body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    /* задержки здесь не обнуляются: на длинной задержке держится защита полей формы от фона
+       автозаполнения (request.module.css); где задержка мешает, она снята точечно (.btn) */
     scroll-behavior: auto !important;
   }
 }

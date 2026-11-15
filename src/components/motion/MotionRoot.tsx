@@ -12,6 +12,8 @@ import { goToSection, setLenis } from '@/lib/scroll'
  *     Lenis там не загружается).
  *  2. Якорные ссылки: плавный переход к блоку.
  *  3. Появление блоков по data-reveal (см. globals.css).
+ *  4. Отклик кнопок на касание (на тач-экранах наведения нет).
+ *  5. Отключение «перелистывания» ссылок при выделении текста и при переводе страницы.
  * При prefers-reduced-motion Lenis не запускается, а содержимое видно сразу (это делает CSS).
  */
 export function MotionRoot() {
@@ -172,6 +174,79 @@ function setup() {
   }
   document.addEventListener('click', onClick)
 
+  // 4. Нажатие на кнопку пальцем: короткий «глоток» заливки (стили — .btn[data-pressed] в globals.css).
+  // Метка держится треть секунды: отклик виден и при самом быстром касании.
+  // Обработчик касания нужен и сам по себе: без него Safari на iPhone не включает :active.
+  const PRESS_MS = 340
+  /** Палец сдвинулся дальше — это прокрутка, а не нажатие. */
+  const PRESS_SLOP = 6
+  const pressed = new Map<Element, { timer: number; pointer: number; x: number; y: number }>()
+  const release = (btn: Element) => {
+    window.clearTimeout(pressed.get(btn)?.timer)
+    pressed.delete(btn)
+    btn.removeAttribute('data-pressed')
+  }
+  const onPress = (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') return
+    // Нажали пальцем или пером: пока не пошевелят мышью, наведение не действует (см. html[data-touch] в globals.css) —
+    // на ноутбуке с сенсорным экраном кнопка после касания не остаётся «налитой».
+    document.documentElement.setAttribute('data-touch', '')
+    const btn = (event.target as Element | null)?.closest('.btn')
+    if (!btn) return
+    window.clearTimeout(pressed.get(btn)?.timer)
+    btn.setAttribute('data-pressed', '')
+    pressed.set(btn, {
+      timer: window.setTimeout(() => release(btn), PRESS_MS),
+      pointer: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    })
+  }
+  const onPressMove = (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') {
+      // снова работают мышью
+      document.documentElement.removeAttribute('data-touch')
+      return
+    }
+    // Касание перешло в прокрутку — отклик не нужен: снимаем метку по сдвигу того же пальца, не дожидаясь отмены касания.
+    pressed.forEach((start, btn) => {
+      if (start.pointer === event.pointerId && Math.hypot(event.clientX - start.x, event.clientY - start.y) > PRESS_SLOP) release(btn)
+    })
+  }
+  const onPressCancel = (event: PointerEvent) => {
+    pressed.forEach((start, btn) => start.pointer === event.pointerId && release(btn))
+  }
+  document.addEventListener('pointerdown', onPress, { passive: true })
+  document.addEventListener('pointermove', onPressMove, { passive: true })
+  document.addEventListener('pointercancel', onPressCancel, { passive: true })
+
+  // 5. «Перелистывание» ссылок отключается там, где оно мешает (стили — .flip[data-flip-off] в globals.css):
+  //    — слово попало в выделение: под курсором должна быть видна подсветка выделенного текста;
+  //    — текст ссылки изменил переводчик страницы: слой букв хранит исходное слово.
+  const flips = Array.from(document.querySelectorAll<HTMLElement>('.flip'))
+  const translated = new WeakSet<Element>()
+  const onSelection = () => {
+    const selection = document.getSelection()
+    const active = !!selection && !selection.isCollapsed
+    flips.forEach((flip) =>
+      flip.toggleAttribute('data-flip-off', translated.has(flip) || (active && selection.containsNode(flip, true))),
+    )
+  }
+  document.addEventListener('selectionchange', onSelection)
+  const translation = new MutationObserver((records) => {
+    records.forEach((record) => {
+      const node = record.target
+      const flip = (node instanceof Element ? node : node.parentElement)?.closest('.flip')
+      if (!flip) return
+      translated.add(flip)
+      flip.setAttribute('data-flip-off', '')
+    })
+  })
+  flips.forEach((flip) => {
+    const text = flip.querySelector('.flip__text')
+    if (text) translation.observe(text, { characterData: true, childList: true, subtree: true })
+  })
+
   // Страница открыта сразу по ссылке с якорем (…/#request): встать на блок по тем же правилам,
   // что и при клике, — браузер сам этого не умеет (экран заявки должен встать вплотную к верху).
   const initial = decodeURIComponent(location.hash.slice(1))
@@ -187,6 +262,12 @@ function setup() {
   return () => {
     disposed = true
     document.removeEventListener('click', onClick)
+    document.removeEventListener('pointerdown', onPress)
+    document.removeEventListener('pointermove', onPressMove)
+    document.removeEventListener('pointercancel', onPressCancel)
+    Array.from(pressed.keys()).forEach(release)
+    document.removeEventListener('selectionchange', onSelection)
+    translation.disconnect()
     mm.revert()
   }
 }

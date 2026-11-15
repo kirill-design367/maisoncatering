@@ -7,12 +7,19 @@ import { defer } from '@/lib/schedule'
 import { lockScroll } from '@/lib/scroll'
 import styles from './mobileMenu.module.css'
 
+type Props = {
+  /** Готовые подписи пунктов с «перелистыванием» (ключ — href пункта): их собирает серверный компонент. */
+  labels?: Record<string, React.ReactNode>
+  /** Телефон с «перелистыванием». */
+  phoneLabel?: React.ReactNode
+}
+
 /**
  * Мобильное меню: бургер справа в шапке и полноэкранный молочный слой.
  * Пункты набраны антиквой, внизу — телефон и кнопки мессенджеров.
  * Пока меню открыто, страница под ним не прокручивается и недоступна для фокуса.
  */
-export function MobileMenu() {
+export function MobileMenu({ labels = {}, phoneLabel }: Props) {
   const [open, setOpen] = useState(false)
   const layerRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -169,7 +176,7 @@ export function MobileMenu() {
                 <li key={item.href} className={styles.item}>
                   <a href={item.href} className={`t-display ${styles.link}`} onClick={() => close(false)}>
                     <span className={styles.linkInner} data-menu-item>
-                      {item.label}
+                      {labels[item.href] ?? item.label}
                     </span>
                   </a>
                 </li>
@@ -179,7 +186,7 @@ export function MobileMenu() {
 
           <div className={styles.foot}>
             <a href={contacts.phoneHref} className={`t-display t-num ${styles.phone}`} data-menu-foot>
-              {contacts.phoneDisplay}
+              {phoneLabel ?? contacts.phoneDisplay}
             </a>
             <div className={styles.messengers} data-menu-foot>
               <a href={contacts.whatsappUrl} target="_blank" rel="noopener noreferrer" className="btn btn--ghost btn--block">

@@ -85,32 +85,79 @@
   gap: clamp(1.5rem, 2.6vw, 3.5rem);
 }
 
+/* Пункты набраны той же антиквой, что и вордмарк: обычный регистр, без разрядки.
+   Шапка читается как заголовок ресторанной карты. Телефон и кнопка остаются гротеском. */
+.navLink {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: 0;
+  font-kerning: normal;
+  color: var(--color-bordo);
+  transition: color 0.6s var(--ease-out-expo);
+}
+.header[data-theme='bordo'] .navLink {
+  color: var(--color-milk);
+}
+/* Раздел, который сейчас на экране, отмечен линией под пунктом (это состояние, не наведение). */
+.navLink::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.6s var(--ease-out-expo);
+}
+.navLink[aria-current='true']::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
 .actions {
   display: none;
 }
 
 @media (min-width: 64rem) {
-  /* Пункты центрируются по высоте так же, как телефон и кнопка (flex), а не сдвигом на половину
-     своей высоты: иначе текст вставал бы на полпикселя выше соседей. */
+  /* Три колонки: вордмарк, пункты, телефон с кнопкой. Боковые колонки равны — пункты стоят строго
+     по центру шапки. Вордмарк и пункты выровнены по общей линии шрифта самой раскладкой:
+     два независимых центрирования расходились на пиксель из-за округления метрик. */
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: baseline;
+    align-content: center;
+  }
+
+  .brand {
+    justify-self: start;
+  }
+
   .nav {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    left: 50%;
-    top: 0;
-    height: 100%;
-    transform: translateX(-50%);
+    display: block;
   }
 
   .actions {
+    justify-self: end;
+    align-self: center;
     display: flex;
     align-items: center;
     gap: clamp(1.25rem, 1.9vw, 2.5rem);
   }
+
+  /* та же высота строки, что у подписи кнопки: телефон и подпись стоят на одной линии */
+  .phone {
+    line-height: 1.2;
+  }
 }
 
-/* На узком десктопе телефон уступает место пунктам: он остаётся в блоке контактов. */
-@media (min-width: 64rem) and (max-width: 74.99rem) {
+/* На узком десктопе телефон уступает место пунктам: он остаётся в блоке контактов.
+   Граница — по ширине пунктов, набранных антиквой: ниже 90rem они подошли бы к телефону вплотную. */
+@media (min-width: 64rem) and (max-width: 89.99rem) {
   .phone {
     display: none;
   }

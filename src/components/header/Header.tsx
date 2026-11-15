@@ -1,9 +1,10 @@
 import { a11y, brand, contacts, cta, nav, sectionIds } from '@/data/site'
+import { Flip } from '@/components/ui/Flip'
 import { HeaderState } from './HeaderState'
 import styles from './header.module.css'
 
 /**
- * Шапка. Десктоп: вордмарк слева, пункты по центру, телефон и кнопка справа.
+ * Шапка. Десктоп: вордмарк слева, пункты по центру (антиквой, как вордмарк), телефон и кнопка справа.
  * Мобильная: вордмарк слева, бургер справа (полноэкранное меню — MobileMenu).
  * Шапка закреплена: с любого экрана до заявки — одно действие.
  */
@@ -20,8 +21,8 @@ export function Header({ mobileMenu }: { mobileMenu?: React.ReactNode }) {
           <ul className={styles.navList}>
             {nav.map((item) => (
               <li key={item.href}>
-                <a href={item.href} className="t-label link link--quiet" data-nav-link>
-                  {item.label}
+                <a href={item.href} className={`link ${styles.navLink}`} data-nav-link>
+                  <Flip text={item.label} font="display" caps={false} />
                 </a>
               </li>
             ))}
@@ -29,8 +30,8 @@ export function Header({ mobileMenu }: { mobileMenu?: React.ReactNode }) {
         </nav>
 
         <div className={styles.actions}>
-          <a href={contacts.phoneHref} className={`t-label t-num link link--quiet ${styles.phone}`}>
-            {contacts.phoneDisplay}
+          <a href={contacts.phoneHref} className={`t-label t-num link ${styles.phone}`}>
+            <Flip text={contacts.phoneDisplay} />
           </a>
           <a href={`#${sectionIds.request}`} className="btn btn--small">
             {cta.discussEvent}

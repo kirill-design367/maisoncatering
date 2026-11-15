@@ -1,4 +1,6 @@
 import { a11y, directions, sectionIds } from '@/data/site'
+import { Arrow } from '@/components/ui/Arrow'
+import { Flip } from '@/components/ui/Flip'
 import { Lines } from '@/components/ui/Lines'
 import { Picture } from '@/components/ui/Picture'
 import { typo } from '@/lib/typo'
@@ -41,7 +43,8 @@ export function Directions() {
                 <div className={styles.row} data-reveal="fade">
                   <p className={`t-body ${styles.text}`}>{typo(d.text)}</p>
                   <a href={d.href} className={`t-label link ${styles.link}`}>
-                    {d.linkLabel}
+                    <Flip text={d.linkLabel} />
+                    <Arrow />
                   </a>
                 </div>
               </div>
