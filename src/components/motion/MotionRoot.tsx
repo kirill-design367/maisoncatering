@@ -12,6 +12,7 @@ import { goToSection, setLenis } from '@/lib/scroll'
  *     Lenis там не загружается).
  *  2. Якорные ссылки: плавный переход к блоку.
  *  3. Появление блоков по data-reveal (см. globals.css).
+ *  4. Отклик кнопок на касание (на тач-экранах наведения нет).
  * При prefers-reduced-motion Lenis не запускается, а содержимое видно сразу (это делает CSS).
  */
 export function MotionRoot() {
@@ -172,6 +173,34 @@ function setup() {
   }
   document.addEventListener('click', onClick)
 
+  // 4. Нажатие на кнопку пальцем: короткий «глоток» заливки (стили — .btn[data-pressed] в globals.css).
+  // Метка держится четверть секунды: отклик виден и при самом быстром касании.
+  // Обработчик касания нужен и сам по себе: без него Safari на iPhone не включает :active.
+  const pressed = new Map<Element, number>()
+  const release = (btn: Element) => {
+    window.clearTimeout(pressed.get(btn))
+    pressed.delete(btn)
+    btn.removeAttribute('data-pressed')
+  }
+  const onPress = (event: PointerEvent) => {
+    if (event.pointerType === 'mouse') return
+    const btn = (event.target as Element | null)?.closest('.btn')
+    if (!btn) return
+    window.clearTimeout(pressed.get(btn))
+    btn.setAttribute('data-pressed', '')
+    pressed.set(
+      btn,
+      window.setTimeout(() => release(btn), 260),
+    )
+  }
+  // Касание перешло в прокрутку — отклик не нужен.
+  const onPressCancel = (event: PointerEvent) => {
+    const btn = (event.target as Element | null)?.closest('.btn')
+    if (btn && pressed.has(btn)) release(btn)
+  }
+  document.addEventListener('pointerdown', onPress, { passive: true })
+  document.addEventListener('pointercancel', onPressCancel, { passive: true })
+
   // Страница открыта сразу по ссылке с якорем (…/#request): встать на блок по тем же правилам,
   // что и при клике, — браузер сам этого не умеет (экран заявки должен встать вплотную к верху).
   const initial = decodeURIComponent(location.hash.slice(1))
@@ -187,6 +216,9 @@ function setup() {
   return () => {
     disposed = true
     document.removeEventListener('click', onClick)
+    document.removeEventListener('pointerdown', onPress)
+    document.removeEventListener('pointercancel', onPressCancel)
+    pressed.forEach((_, btn) => release(btn))
     mm.revert()
   }
 }

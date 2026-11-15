@@ -35,6 +35,8 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* «Налив» кнопки: уровень сразу трогается, идёт ровно и мягко доходит до края. */
+  --ease-pour: cubic-bezier(0.37, 0.2, 0.25, 1);
 }
 
 :root {
@@ -317,44 +319,139 @@ html.lenis body {
   white-space: nowrap;
   overflow: hidden;
   transition:
-    color 0.5s var(--ease-out-expo),
+    color 0.3s var(--ease-soft) 0.02s,
     transform 0.25s var(--ease-soft);
 }
-/* Заливка «шторкой» снизу: кнопка отвечает на курсор сменой фона и текста. */
-.btn::before {
+
+/* «Налив». Кнопка наполняется снизу, как бокал вином: заливка поднимается, её верхний край —
+   поверхность жидкости — мягко колышется, текст меняет цвет. Заливка — два слоя одного цвета
+   с волнистым верхним краем (маска): слои едут навстречу друг другу, и общая кромка всё время
+   меняет форму. Двигаются только transform (уровень) и translate (волна).
+   Слой вдвое шире кнопки: при сдвиге волны он продолжает закрывать её целиком. */
+.btn::before,
+.btn::after {
+  --wave-h: 0.625rem;
   content: '';
   position: absolute;
-  inset: -1px;
+  left: 0;
+  bottom: -1px;
   z-index: -1;
-  background: var(--btn-fg);
-  transform: scaleY(0);
-  transform-origin: center bottom;
-  transition: transform 0.6s var(--ease-out-expo);
+  width: 200%;
+  height: calc(100% + var(--wave-h) + 2px);
+  background: var(--btn-fill, var(--btn-fg));
+  /* #000 здесь — не цвет интерфейса, а непрозрачная часть маски */
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 10' preserveAspectRatio='none'%3E%3Cpath d='M0 8.5C18.2 8.5 31.8 1 50 1S81.8 8.5 100 8.5 131.8 1 150 1 181.8 8.5 200 8.5 231.8 1 250 1 281.8 8.5 300 8.5 331.8 1 350 1 381.8 8.5 400 8.5V10H0Z'/%3E%3C/svg%3E"),
+    linear-gradient(#000, #000);
+  mask-size:
+    100% var(--wave-h),
+    100% calc(100% - var(--wave-h) + 1px);
+  mask-position:
+    0 0,
+    0 100%;
+  mask-repeat: no-repeat;
+  /* в покое заливка целиком под нижним краем кнопки */
+  transform: translateY(101%);
+  transition:
+    transform 0.7s var(--ease-soft),
+    translate 0.9s var(--ease-soft);
 }
+/* Вторая волна: длиннее и ниже, идёт навстречу первой. */
+.btn::after {
+  mask-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 10' preserveAspectRatio='none'%3E%3Cpath d='M0 8.5C18.2 8.5 31.8 3.5 50 3.5S81.8 8.5 100 8.5 131.8 3.5 150 3.5 181.8 8.5 200 8.5 231.8 3.5 250 3.5 281.8 8.5 300 8.5V10H0Z'/%3E%3C/svg%3E"),
+    linear-gradient(#000, #000);
+  translate: -22% 0;
+}
+
 @media (hover: hover) and (pointer: fine) {
   .btn:hover {
-    color: var(--btn-bg);
+    color: var(--btn-ink, var(--btn-bg));
+    /* текст меняет цвет в тот момент, когда поверхность проходит через строку */
+    transition:
+      color 0.35s var(--ease-soft) 0.2s,
+      transform 0.25s var(--ease-soft);
+  }
+  .btn:hover::before,
+  .btn:hover::after {
+    transform: translateY(0);
+    transition:
+      transform 1.15s var(--ease-pour),
+      translate 2.2s var(--ease-soft);
   }
   .btn:hover::before {
-    transform: scaleY(1);
+    translate: -20% 0;
+  }
+  .btn:hover::after {
+    translate: -4% 0;
   }
 }
+
+/* На телефоне наведения нет: нажатие отвечает коротким «глотком» — вино поднимается
+   на треть кнопки и уходит обратно, текст остаётся над поверхностью.
+   data-pressed ставит MotionRoot в момент касания и держит четверть секунды, чтобы отклик
+   был виден и при самом быстром нажатии; :active — запасной вариант до загрузки скриптов. */
+@media (hover: none), (pointer: coarse) {
+  .btn::before,
+  .btn::after {
+    transition:
+      transform 0.6s var(--ease-soft) 0.08s,
+      translate 0.9s var(--ease-soft) 0.08s;
+  }
+  .btn:active::before,
+  .btn:active::after,
+  .btn[data-pressed]::before,
+  .btn[data-pressed]::after {
+    transform: translateY(72%);
+    transition:
+      transform 0.2s var(--ease-soft),
+      translate 0.4s var(--ease-soft);
+  }
+  .btn:active::before,
+  .btn[data-pressed]::before {
+    translate: -8% 0;
+  }
+  .btn:active::after,
+  .btn[data-pressed]::after {
+    translate: -14% 0;
+  }
+}
+
+/* Без движения: кнопка меняет цвета сразу, без подъёма и волны. */
+@media (prefers-reduced-motion: reduce) {
+  .btn::before {
+    mask-image: none;
+    transform: none;
+    translate: none;
+    opacity: 0;
+  }
+  .btn::after {
+    display: none;
+  }
+  .btn:active::before,
+  .btn[data-pressed]::before {
+    transform: none;
+    translate: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) and (hover: hover) and (pointer: fine) {
+  .btn:hover::before {
+    transform: none;
+    translate: none;
+    opacity: 1;
+  }
+}
+
 .btn:active {
   transform: scale(0.98);
 }
 
-/* Контурная кнопка. */
+/* Контурная кнопка: прозрачная, наливается своим цветом (на молочном — бордо). */
 .btn--ghost {
+  --btn-fill: var(--btn-bg);
+  --btn-ink: var(--btn-fg);
   background: transparent;
   color: var(--btn-bg);
-}
-.btn--ghost::before {
-  background: var(--btn-bg);
-}
-@media (hover: hover) and (pointer: fine) {
-  .btn--ghost:hover {
-    color: var(--btn-fg);
-  }
 }
 
 /* На бордовом экране кнопка молочная. */
